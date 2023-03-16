@@ -1,0 +1,6 @@
+*__pycache__
+*.db
+.vscode
+*build
+*credentials.py
+src.egg-info
