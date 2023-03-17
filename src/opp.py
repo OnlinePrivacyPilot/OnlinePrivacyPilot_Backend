@@ -9,7 +9,7 @@ class OPP:
         self.search_mode = search_mode if search_mode else False
         self.search_depth = search_depth
         self.storage = storage.Storage(target.replace(' ', '_')+".db")
-        self.fingerprint = footprint.create_footprint(self.target, self.target_type, "user_input", self.search_mode, search_depth)
+        self.fingerprint = footprint.RecursionHandler.get(self.target, self.target_type, "user_input", self.search_mode, search_depth)
 
     def get_fingerprint(self):
         return self.fingerprint
