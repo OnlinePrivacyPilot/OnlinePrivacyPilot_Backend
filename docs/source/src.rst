@@ -1,10 +1,10 @@
-src package
-===========
+Functional overview
+===================
 
 Submodules
 ----------
 
-src.accuracy module
+Accuracy
 -------------------
 
 .. automodule:: src.accuracy
@@ -12,7 +12,7 @@ src.accuracy module
    :undoc-members:
    :show-inheritance:
 
-src.analyze module
+Analyze
 ------------------
 
 .. automodule:: src.analyze
@@ -20,7 +20,7 @@ src.analyze module
    :undoc-members:
    :show-inheritance:
 
-src.cli\_client module
+Entry Point
 ----------------------
 
 .. automodule:: src.cli_client
@@ -28,7 +28,7 @@ src.cli\_client module
    :undoc-members:
    :show-inheritance:
 
-src.credentials module
+Credentials
 ----------------------
 
 .. automodule:: src.credentials
@@ -36,15 +36,16 @@ src.credentials module
    :undoc-members:
    :show-inheritance:
 
-src.footprint module
+Footprint
 --------------------
 
 .. automodule:: src.footprint
    :members:
    :undoc-members:
    :show-inheritance:
+    .. automethod:: __init__
 
-src.opp module
+OPP
 --------------
 
 .. automodule:: src.opp
@@ -52,7 +53,7 @@ src.opp module
    :undoc-members:
    :show-inheritance:
 
-src.scrap module
+Scrap
 ----------------
 
 .. automodule:: src.scrap
@@ -60,7 +61,7 @@ src.scrap module
    :undoc-members:
    :show-inheritance:
 
-src.search module
+Search
 -----------------
 
 .. automodule:: src.search
@@ -68,8 +69,7 @@ src.search module
    :undoc-members:
    :show-inheritance:
 
-
-src.storage module
+Storage
 ------------------
 
 .. automodule:: src.storage

@@ -7,10 +7,23 @@ from typing import Optional
 
 class Footprint(ABC):
     """
-    A simple docstring.
+    This class is an abstract class that will define all the common attributes and method we want for our different type of footprint.
 
+    Args:
+        ABC (class): Here we are specifying that the class contains an abstract method.
     """
     def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, active_search: Optional[str] = None, search_depth: int = 0, source_footprint_id: int = None):
+        """
+        Init functions
+
+        Args:
+            target (str, optional): The input of the user we are the investigated in. Defaults to None.
+            target_type (Optional[str], optional): Type of the target is we know it so far. Defaults to None.
+            method (Optional[str], optional): The way we used to obtain this footprint. Defaults to None.
+            active_search (Optional[str], optional): Simple boolean value: do the user want to investigate her/his data actively. Defaults to None.
+            search_depth (int, optional): The user has also the choice of teh depth of the recursion while we are scraping. Defaults to 0.
+            source_footprint_id (int, optional): Storage of the parent id the footprint is coming from. Defaults to None.
+        """
         self.target = target
         self.target_type = target_type
         self.method = method
@@ -22,6 +35,16 @@ class Footprint(ABC):
         pass
     
     def store_fp(self, source_footprint_id: int = None) -> int:
+        """
+        This function is responsible of the storage of our footprint.
+        It will create a node in the database and the edges associated with it. 
+
+        :param source_footprint_id: with this attribute we are able to keep the id of the footprint above the current footprint in the tree. 
+            Used to build edges. Defaults to None.
+        :type source_footprint_id: int, optional
+
+        :returns: the id of the footprint
+        """
         footprint_id = storage.Storage().store_node(self.method, self.target_type, self.target)
         if source_footprint_id:
             storage.Storage().store_edge(source_footprint_id, footprint_id)
@@ -36,6 +59,9 @@ class SearchableFootprint(Footprint):
 
 
     def process(self) -> None:
+        """"
+        Redefinition of the process function.
+        """
         search_obj = search.Search(self.target, self.active_search)
         children_footprints = []
         for item in search_obj.result:
