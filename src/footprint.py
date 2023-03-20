@@ -12,9 +12,11 @@ class Footprint(ABC):
     Args:
         ABC (class): Here we are specifying that the class contains an abstract method.
     """
+    _instances = []
+
     def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, active_search: Optional[str] = None, search_depth: int = 0, source_footprint_id: int = None):
         """
-        Init functions
+        Init function
 
         Args:
             target (str, optional): The input of the user we are the investigated in. Defaults to None.
@@ -24,11 +26,15 @@ class Footprint(ABC):
             search_depth (int, optional): The user has also the choice of teh depth of the recursion while we are scraping. Defaults to 0.
             source_footprint_id (int, optional): Storage of the parent id the footprint is coming from. Defaults to None.
         """
+        Footprint._instances.append(self)
         self.target = target
         self.target_type = target_type
         self.method = method
         self.active_search = active_search
         self.search_depth = search_depth
+    
+    def instances():
+        return Footprint._instances
     
     @abstractmethod
     def process(self) -> None:
@@ -102,7 +108,7 @@ class RecursionHandler:
     def get(cls, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, active_search: Optional[str] = None, search_depth: Optional[int] = 0, source_footprint_id: int = None) -> Footprint:
         if target_type == None:
             target_type = cls.eval_target_type(target)
-        if search_depth > 0:
+        if search_depth > 0 and cls.check_target_not_duplicate(target):
             if target_type in cls.SCRAPABLE_TYPES:
                 return ScrapableFootprint(target, target_type, method, active_search, (search_depth - 1), source_footprint_id)
             elif target_type in cls.SEARCHABLE_TYPES:
@@ -119,6 +125,14 @@ class RecursionHandler:
             return "name"
         else:
             return None
+    
+    @classmethod
+    def check_target_not_duplicate(cls, target):
+        for instance in Footprint.instances():
+            if instance.target == target:
+                return False
+        return True
+
 
     def is_url(string: str) -> bool:
         try:
