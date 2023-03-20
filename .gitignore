@@ -4,3 +4,5 @@
 *build
 *credentials.py
 src.egg-info
+*.dot
+*.png

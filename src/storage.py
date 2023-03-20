@@ -33,3 +33,6 @@ class Storage:
         :return: None
         """
         db.atomic(self.db_file, db.connect_nodes(parent_id, child_id, {}))
+
+    def gen_graphviz(self):
+        graphviz_visualize(self.db_file, self.db_file+'.dot', db.traverse(self.db_file, 1, neighbors_fn=db.find_neighbors))
