@@ -127,9 +127,9 @@ class RecursionHandler:
             return None
     
     @classmethod
-    def check_target_not_duplicate(cls, target):
+    def check_target_not_duplicate(cls, target: str) -> bool:
         for instance in Footprint.instances():
-            if instance.target == target:
+            if instance.target.lower() == target.lower():
                 return False
         return True
 
