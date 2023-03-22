@@ -56,6 +56,16 @@ class Storage:
             child_id (int): Child node ID
         """
         db.atomic(self.db_file, db.connect_nodes(parent_id, child_id, {}))
+    
+    def delete_node(self, id: int) -> None:
+        """
+        Delete a node according to its ID, all child nodes will be also deleted.
+
+        Args:
+            id (int): ID of the node to delete
+        """
+        db.atomic(self.db_file, db.remove_nodes(db.traverse(self.db_file, id, neighbors_fn=db.find_outbound_neighbors)))
+ 
 
     def gen_graphviz(self):
         graphviz_visualize(self.db_file, self.db_file+'.dot', db.traverse(self.db_file, 1, neighbors_fn=db.find_neighbors))
