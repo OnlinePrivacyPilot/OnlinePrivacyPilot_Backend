@@ -9,6 +9,7 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
+from src import analyze
 
 
 USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/110.0"
@@ -17,6 +18,7 @@ class Scrap():
     """
     Init function
     """
+    
     def __init__(self, url: str = None):
         if isurl_twitter(url):
             self.scrapper = TwitterScrapper(url)
@@ -27,6 +29,7 @@ class Scrap():
         elif isurl_linkedin(url):
             self.scrapper = LinkedinScrapper(url)
         else:
+            print(url)
             self.scrapper = GenericScrapper(url)
             
 
@@ -380,15 +383,38 @@ class LinkedinScrapper(AbstractScrapper):
         return result
 
 class GenericScrapper(AbstractScrapper):
-
+    
     METHOD_NAME = "generic_scrapper"
 
     def __init__(self, url):
         super().__init__(url)
         self.result = self.scrap_data(url)
 
-    def scrap_data(self, url) -> List:
-        return []
+    def scrap_data(cls, url) -> List:
+        result = []
+
+        # Send a GET request to the URL
+        headers = {"User-Agent": USER_AGENT}
+        response = requests.get(url, headers=headers)
+
+        # Parse the HTML content using BeautifulSoup
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        if soup.find("body"):
+            text = soup.find("body").get_text(separator=' ')
+            #print(text)
+            analysis = analyze.Analyze.extract_nlp(text)
+
+            for a in analysis:
+                result.append(
+                    {
+                    "type" : a[1],
+                    "value" : a[0],
+                    "method" : cls.METHOD_NAME
+                    }
+                )
+                
+        return result
 
 def isurl_social(string: str, matching_urls: List[str]) -> bool:
     try:
