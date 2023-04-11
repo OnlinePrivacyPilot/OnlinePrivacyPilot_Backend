@@ -1,4 +1,5 @@
 from src import opp
+from src import storage
 import sys
 import getopt
 
@@ -36,3 +37,4 @@ class cliClient:
                 search_depth = int(value)
 
         fingerprint = opp.OPP(target = " ".join(args), search_depth = search_depth)
+        storage.Storage().gen_graphviz()
