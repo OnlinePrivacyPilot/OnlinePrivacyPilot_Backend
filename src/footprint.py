@@ -32,6 +32,7 @@ class Footprint(ABC):
         self.method = method
         self.active_search = active_search
         self.search_depth = search_depth
+        self.children_footprints = []
     
     def instances():
         return Footprint._instances
@@ -69,9 +70,8 @@ class SearchableFootprint(Footprint):
         Redefinition of the process function.
         """
         search_obj = search.Search(self.target, self.active_search)
-        children_footprints = []
         for item in search_obj.result:
-            children_footprints.append(
+            self.children_footprints.append(
                 RecursionHandler.get(item["value"], item["type"], item["method"], self.active_search, self.search_depth, self.footprint_id)
             )
 
@@ -83,9 +83,8 @@ class ScrapableFootprint(Footprint):
 
     def process(self) -> None:
         scrap_obj = scrap.Scrap(self.target).scrapper
-        children_footprints = []
         for item in scrap_obj.result:
-            children_footprints.append(
+            self.children_footprints.append(
                 RecursionHandler.get(item["value"], item["type"], item["method"], self.active_search, self.search_depth, self.footprint_id)
             )
 
