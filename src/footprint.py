@@ -14,7 +14,7 @@ class Footprint(ABC):
     """
     _instances = []
 
-    def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, active_search: Optional[str] = None, search_depth: int = 0, source_footprint_id: int = None):
+    def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None):
         """
         Init function
 
@@ -22,7 +22,6 @@ class Footprint(ABC):
             target (str, optional): The input of the user we are the investigated in. Defaults to None.
             target_type (Optional[str], optional): Type of the target is we know it so far. Defaults to None.
             method (Optional[str], optional): The way we used to obtain this footprint. Defaults to None.
-            active_search (Optional[str], optional): Simple boolean value: do the user want to investigate her/his data actively. Defaults to None.
             search_depth (int, optional): The user has also the choice of teh depth of the recursion while we are scraping. Defaults to 0.
             source_footprint_id (int, optional): Storage of the parent id the footprint is coming from. Defaults to None.
         """
@@ -30,10 +29,8 @@ class Footprint(ABC):
         self.target = target
         self.target_type = target_type
         self.method = method
-        self.active_search = active_search
-        self.search_depth = search_depth
         self.children_footprints = []
-    
+
     def instances():
         return Footprint._instances
     
@@ -59,9 +56,15 @@ class Footprint(ABC):
             
 
 class SearchableFootprint(Footprint):
-    def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, active_search: Optional[str] = None, search_depth: int = 0, source_footprint_id: int = None):
-        super().__init__(target, target_type, method, active_search, search_depth, source_footprint_id)
-        self.footprint_id = self.store_fp(source_footprint_id)
+    def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, search_depth: int = 0, source_footprint: Optional[Footprint] = None):
+        super().__init__(target, target_type, method)
+        self.source_footprint = source_footprint
+        if self.source_footprint:
+            self.search_depth = self.source_footprint.search_depth - 1 
+            self.id = self.store_fp(self.source_footprint.id)
+        else:
+            self.search_depth = search_depth
+            self.id = self.store_fp(None)
         self.process()
 
 
@@ -69,51 +72,62 @@ class SearchableFootprint(Footprint):
         """"
         Redefinition of the process function.
         """
-        search_obj = search.Search(self.target, self.active_search)
+        search_obj = search.Search(self.target)
         for item in search_obj.result:
             self.children_footprints.append(
-                RecursionHandler.get(item["value"], item["type"], item["method"], self.active_search, self.search_depth, self.footprint_id)
+                RecursionHandler.get(target=item["value"], source_footprint=self, method=item["method"], target_type=item["type"])
             )
 
 class ScrapableFootprint(Footprint):
-    def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, active_search: Optional[str] = None, search_depth: int = 0, source_footprint_id: int = None):
-        super().__init__(target, target_type, method, active_search, search_depth, source_footprint_id)
-        self.footprint_id = self.store_fp(source_footprint_id)
+    def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, search_depth: int = 0, source_footprint: Optional[Footprint] = None):
+        super().__init__(target, target_type, method)
+        self.source_footprint = source_footprint
+        self.search_depth = self.source_footprint.search_depth - 1 
+        self.id = self.store_fp(self.source_footprint.id)
         self.process()
-
+        
     def process(self) -> None:
         scrap_obj = scrap.Scrap(self.target).scrapper
         for item in scrap_obj.result:
             self.children_footprints.append(
-                RecursionHandler.get(item["value"], item["type"], item["method"], self.active_search, self.search_depth, self.footprint_id)
+                RecursionHandler.get(target=item["value"], source_footprint=self, method=item["method"], target_type=item["type"])
             )
 
 
 class TerminalFootprint(Footprint):
-    def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, active_search: Optional[str] = None, source_footprint_id: int = None):
-        super().__init__(target, target_type, method, active_search, source_footprint_id)
-        self.footprint_id = self.store_fp(source_footprint_id)
+    def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, source_footprint: Optional[Footprint] = None):
+        super().__init__(target, target_type, method)
+        self.source_footprint = source_footprint
+        if self.source_footprint:
+            self.id = self.store_fp(self.source_footprint.id)
+        else:
+            self.id = self.store_fp(None)
         self.process()
-    
+
     def process(self) -> None:
         pass
 
 
 class RecursionHandler:
     SCRAPABLE_TYPES = ["url"]
+    #SEARCHABLE_TYPES = ["name", "location", "email", "username", "phone_number", "occupation"]
     SEARCHABLE_TYPES = ["name"]
 
     @classmethod
-    def get(cls, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, active_search: Optional[str] = None, search_depth: Optional[int] = 0, source_footprint_id: int = None) -> Footprint:
+    def get(cls, target: str, method: str, source_footprint: Footprint, target_type: Optional[str] = None) -> Footprint:
         if target_type == None:
             target_type = cls.eval_target_type(target)
-        if search_depth > 0 and cls.check_target_not_duplicate(target):
+        if source_footprint.search_depth > 0 and cls.check_target_not_duplicate(target):
             if target_type in cls.SCRAPABLE_TYPES:
-                return ScrapableFootprint(target, target_type, method, active_search, (search_depth - 1), source_footprint_id)
+                return ScrapableFootprint(target=target, target_type=target_type, method=method, source_footprint=source_footprint)
             elif target_type in cls.SEARCHABLE_TYPES:
-                return SearchableFootprint(target, target_type, method, active_search, (search_depth - 1), source_footprint_id)
-        return TerminalFootprint(target, target_type, method, active_search, source_footprint_id)
-
+                return SearchableFootprint(target=target, target_type=target_type, method=method, source_footprint=source_footprint)
+        return TerminalFootprint(target=target, target_type=target_type, method=method, source_footprint=source_footprint)
+    
+    @classmethod
+    def get_root(cls, target: str = None, search_depth: int = 0) -> Footprint:
+            return SearchableFootprint(target, cls.eval_target_type(target), "root", (search_depth - 1))
+        
     @classmethod
     def eval_target_type(cls, target):
         # URL ?
