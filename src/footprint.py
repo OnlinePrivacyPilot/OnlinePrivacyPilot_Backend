@@ -57,7 +57,7 @@ class Footprint(ABC):
             
 
 class SearchableFootprint(Footprint):
-    def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, search_depth: int = 0, source_footprint: Optional[Footprint] = None):
+    def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, search_depth: int = 0, source_footprint: Optional[Footprint] = None, initial_filters: Optional[list] = []):
         super().__init__(target, target_type, method)
         self.source_footprint = source_footprint
         if self.source_footprint:
@@ -66,11 +66,12 @@ class SearchableFootprint(Footprint):
         else:
             self.search_depth = search_depth
             self.id = self.store_fp(None)
+        self.initial_filters = initial_filters
         self.process()
 
 
     def process(self) -> None:
-        search_obj = search.Search(self.target, self.get_filters())
+        search_obj = search.Search(filters=self.get_filters(), initial_filters=self.get_initial_filters())
         for item in search_obj.result:
             self.children_footprints.append(
                 RecursionHandler.get(target=item["value"], source_footprint=self, method=item["method"], target_type=item["type"])
@@ -78,21 +79,27 @@ class SearchableFootprint(Footprint):
     
     def get_filters(self) -> list:
         filters = []
-        footprint = self.source_footprint
+        footprint = self
         while footprint != None:
             if isinstance(footprint, SearchableFootprint):
                 filters.append(
                     {
                         "value" : footprint.target,
                         "type" : footprint.target_type,
-                        "positive" : footprint.positive 
+                        "positive" : footprint.positive
                     }
                 )
             footprint = footprint.source_footprint
         return filters
+    
+    def get_initial_filters(self) -> list:
+        footprint = self
+        while footprint.source_footprint != None:
+            footprint = footprint.source_footprint
+        return footprint.initial_filters
 
 class ScrapableFootprint(Footprint):
-    def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, search_depth: int = 0, source_footprint: Optional[Footprint] = None):
+    def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, source_footprint: Optional[Footprint] = None):
         super().__init__(target, target_type, method)
         self.source_footprint = source_footprint
         self.search_depth = self.source_footprint.search_depth - 1 
@@ -138,8 +145,8 @@ class RecursionHandler:
         return TerminalFootprint(target=target, target_type=target_type, method=method, source_footprint=source_footprint)
     
     @classmethod
-    def get_root(cls, target: str = None, search_depth: int = 0) -> Footprint:
-            return SearchableFootprint(target, cls.eval_target_type(target), "root", (search_depth - 1))
+    def get_root(cls, target: str = None, search_depth: int = 0, initial_filters: Optional[list] = []) -> Footprint:
+            return SearchableFootprint(target=target, target_type=cls.eval_target_type(target), method="user_input", search_depth=(search_depth - 1), initial_filters=initial_filters)
         
     @classmethod
     def eval_target_type(cls, target):
