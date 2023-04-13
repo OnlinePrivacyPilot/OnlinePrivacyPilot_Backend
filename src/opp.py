@@ -8,7 +8,7 @@ class OPP:
         self.target_type = target_type
         self.search_depth = search_depth
         self.storage = storage.Storage(target.replace(' ', '_')+".db")
-        self.fingerprint = footprint.RecursionHandler.get_root(target=self.target, search_depth=search_depth)
+        self.fingerprint = footprint.RecursionHandler.get_root(target=self.target, search_depth=search_depth, initial_filters=[])
 
     def get_fingerprint(self):
         return self.fingerprint
