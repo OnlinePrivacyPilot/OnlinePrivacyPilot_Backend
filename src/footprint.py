@@ -29,6 +29,7 @@ class Footprint(ABC):
         self.target = target
         self.target_type = target_type
         self.method = method
+        self.positive = True
         self.children_footprints = []
 
     def instances():
@@ -69,14 +70,26 @@ class SearchableFootprint(Footprint):
 
 
     def process(self) -> None:
-        """"
-        Redefinition of the process function.
-        """
-        search_obj = search.Search(self.target)
+        search_obj = search.Search(self.target, self.get_filters())
         for item in search_obj.result:
             self.children_footprints.append(
                 RecursionHandler.get(target=item["value"], source_footprint=self, method=item["method"], target_type=item["type"])
             )
+    
+    def get_filters(self) -> list:
+        filters = []
+        footprint = self.source_footprint
+        while footprint != None:
+            if isinstance(footprint, SearchableFootprint):
+                filters.append(
+                    {
+                        "value" : footprint.target,
+                        "type" : footprint.target_type,
+                        "positive" : footprint.positive 
+                    }
+                )
+            footprint = footprint.source_footprint
+        return filters
 
 class ScrapableFootprint(Footprint):
     def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, search_depth: int = 0, source_footprint: Optional[Footprint] = None):
@@ -110,7 +123,7 @@ class TerminalFootprint(Footprint):
 
 class RecursionHandler:
     SCRAPABLE_TYPES = ["url"]
-    #SEARCHABLE_TYPES = ["name", "location", "email", "username", "phone_number", "occupation"]
+    #SEARCHABLE_TYPES = ["name", "location", "email", "username", "phone", "occupation"]
     SEARCHABLE_TYPES = ["name"]
 
     @classmethod
