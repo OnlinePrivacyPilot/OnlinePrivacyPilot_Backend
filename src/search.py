@@ -1,7 +1,7 @@
 from src import credentials
 from googleapiclient.discovery import build
 from itertools import permutations
-from jinja2 import Environment, PackageLoader, Template
+from jinja2 import Template
 
 class Search:
     def __init__(self, filters=None, initial_filters=None):
@@ -26,22 +26,21 @@ class Search:
         SEARCHABLE_BUT_NOT_MAIN_TYPE = ["email", "location", "phone", "occupation"]
         OSINTABLE_TYPE = ["email", "phone"]
 
+        # Iterating on all the initial filters and appending them in the right list according to the value of their positive field
         for initf in self.initial_filters:
-            if initf["positive"] == True:
-                p_i.append(initf)
-            else:
-                n_i.append(initf)
+            (p_i if initf["positive"] == True else n_i).append(initf)
 
+        """
+            input: list of previous filters obtained in the path
+            take the first element of the list
+            if this is a filter searchable but not main, consider p_0 as the last element and iterate on the list while adding filters as positive ones
+            elif if it is a main filter, consider p_0 again and iterate backwards, adding filters as positive ones until you find another main filter.
+            else it is not a searchable filter and cannot be added as a filter.  
+        """
         if self.filters[0]["type"] in SEARCHABLE_BUT_NOT_MAIN_TYPE:
-            p_0_str = self.filters[len(self.filters)-1]["value"]
-            for perm in self.get_permutations(p_0_str):
-                p_0.append(perm)
-            print(p_0)
-
-            for filter in self.filters:
-                if filter != p_0:
-                    p_i.append(filter)
-
+            p_0 = [perm for perm in self.get_permutations(self.filters[-1]["value"])]
+            p_i += [filter for filter in self.filters if filter != p_0 and filter["type"] in MAIN_FILTERS_TYPE + SEARCHABLE_BUT_NOT_MAIN_TYPE]
+            # In addition, if OSINTABLE filter, call OSINT methods.
             if self.filters[0]["type"] in OSINTABLE_TYPE:
                 self.mod_osint()
 
@@ -53,7 +52,7 @@ class Search:
                 i += 1
         else:
             pass
-        self.query = template.render(p_0=p_0, pos_filters=p_i, neg_filters=p_i)
+        self.query = template.render(p_0=p_0, pos_filters=p_i, neg_filters=n_i)
     
     def mod_google(self):
         api_key = credentials.API_KEY
