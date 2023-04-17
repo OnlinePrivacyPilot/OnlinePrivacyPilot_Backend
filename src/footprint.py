@@ -80,16 +80,28 @@ class SearchableFootprint(Footprint):
     def get_filters(self) -> list:
         filters = []
         footprint = self
-        while footprint != None:
-            if isinstance(footprint, SearchableFootprint):
-                filters.append(
-                    {
-                        "value" : footprint.target,
-                        "type" : footprint.target_type,
-                        "positive" : footprint.positive
-                    }
-                )
-            footprint = footprint.source_footprint
+
+        # Add current Footprint as first filter
+        filters.append(
+            {
+                "value" : footprint.target,
+                "type" : footprint.target_type,
+                "positive" : footprint.positive
+            }
+        )
+        
+        # If the current footprint is not a name or a username,
+        # go back up the path in the tree to retrieve the first name
+        if footprint.target_type != "name" and footprint.target_type != "username":
+            while footprint != None and footprint.target_type != "name":
+                footprint = footprint.source_footprint
+            filters.append(
+                {
+                    "value" : footprint.target,
+                    "type" : footprint.target_type,
+                    "positive" : footprint.positive
+                }
+            )
         return filters
     
     def get_initial_filters(self) -> list:
