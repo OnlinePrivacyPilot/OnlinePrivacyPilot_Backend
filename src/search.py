@@ -50,7 +50,7 @@ class Search:
                 p_0 = [self.filters[0]["value"]]
             elif self.filters[0]["type"] in SEARCHABLE_BUT_NOT_MAIN_TYPE:
                 p_0 = [self.filters[-1]["value"]]
-                p_i += [filter["value"] for filter in self.filters if filter != p_0 and filter["type"] in MAIN_FILTERS_TYPE + SEARCHABLE_BUT_NOT_MAIN_TYPE]
+                p_i += [filter["value"] for filter in self.filters[1:] if filter["type"] in MAIN_FILTERS_TYPE + SEARCHABLE_BUT_NOT_MAIN_TYPE]
         # Generating query
         self.query = QUERY_TEMPLATE.render(p_0=p_0, pos_filters=p_i, neg_filters=n_i)
     
@@ -61,14 +61,15 @@ class Search:
         service = build("customsearch", "v1", developerKey=api_key)
         result = service.cse().list(q=self.query, cx=search_engine_id).execute()
 
-        for item in result["items"]:
-            self.result.append(
-                {
-                    "type" : "url",
-                    "value" : item["link"],
-                    "method" : "google"
-                }
-            )
+        if "items" in result:
+            for item in result["items"]:
+                self.result.append(
+                    {
+                        "type" : "url",
+                        "value" : item["link"],
+                        "method" : "google"
+                    }
+                )
 
     def mod_google_no_api(self):
         url = 'https://www.google.com/search?q='+ self.query.replace(" ", "+")
