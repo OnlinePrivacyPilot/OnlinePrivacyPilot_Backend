@@ -1,7 +1,8 @@
 from src import credentials
 from googleapiclient.discovery import build
-from itertools import permutations
 from jinja2 import Template
+import requests
+from bs4 import BeautifulSoup
 
 class Search:
     def __init__(self, filters=None, initial_filters=None):
@@ -69,6 +70,26 @@ class Search:
                     "method" : "google"
                 }
             )
+
+    def mod_google_no_api(self):
+        url = 'https://www.google.com/search?q='+ self.query.replace(" ", "+")
+        headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/110.0'}
+        response = requests.get(url, headers=headers)
+
+        soup = BeautifulSoup(response.text, 'html.parser')
+        results = soup.find_all('div', class_='g')
+        for result in results:
+            try:
+                self.result.append(
+                    {
+                        "type" : "url",
+                        "value" : result.find('a')['href'],
+                        "method" : "google"
+                    }
+                )
+            except KeyError:
+                pass
+
     
     def mod_osint(self):
         pass
