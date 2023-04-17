@@ -47,9 +47,9 @@ class Search:
         """
         if len(self.filters) != 0:
             if self.filters[0]["type"] in MAIN_FILTERS_TYPE:
-                p_0 = [self.filters[0]]
+                p_0 = [self.filters[0]["value"]]
             elif self.filters[0]["type"] in SEARCHABLE_BUT_NOT_MAIN_TYPE:
-                p_0 = [self.filters[-1]]
+                p_0 = [self.filters[-1]["value"]]
                 p_i += [filter for filter in self.filters[:-1] if filter["type"] in MAIN_FILTERS_TYPE + SEARCHABLE_BUT_NOT_MAIN_TYPE]
         # Generating query
         self.query = QUERY_TEMPLATE.render(p_0=p_0, pos_filters=p_i, neg_filters=n_i)
