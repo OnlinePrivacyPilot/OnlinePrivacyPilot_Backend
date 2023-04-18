@@ -4,6 +4,7 @@ from src import storage
 from abc import ABC, abstractmethod
 from urllib.parse import urlparse
 from typing import Optional
+from src import ftype
 
 class Footprint(ABC):
     """
@@ -141,18 +142,14 @@ class TerminalFootprint(Footprint):
 
 
 class RecursionHandler:
-    SCRAPABLE_TYPES = ["url"]
-    #SEARCHABLE_TYPES = ["name", "location", "email", "username", "phone", "occupation"]
-    SEARCHABLE_TYPES = ["name"]
-
     @classmethod
     def get(cls, target: str, method: str, source_footprint: Footprint, target_type: Optional[str] = None) -> Footprint:
         if target_type == None:
             target_type = cls.eval_target_type(target)
         if source_footprint.search_depth > 0 and cls.check_target_not_duplicate(target):
-            if target_type in cls.SCRAPABLE_TYPES:
+            if target_type in ftype.SCRAPABLE_TYPES:
                 return ScrapableFootprint(target=target, target_type=target_type, method=method, source_footprint=source_footprint)
-            elif target_type in cls.SEARCHABLE_TYPES:
+            elif target_type in ftype.SEARCHABLE_TYPES:
                 return SearchableFootprint(target=target, target_type=target_type, method=method, source_footprint=source_footprint)
         return TerminalFootprint(target=target, target_type=target_type, method=method, source_footprint=source_footprint)
     

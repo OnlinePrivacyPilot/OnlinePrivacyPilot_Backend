@@ -3,6 +3,7 @@ from googleapiclient.discovery import build
 from jinja2 import Template
 import requests
 from bs4 import BeautifulSoup
+from src import ftype
 
 class Search:
     def __init__(self, filters=None, initial_filters=None):
@@ -20,9 +21,7 @@ class Search:
         if len(self.filters) != 0 and self.filters[0]["type"] in ["email", "phone"]:
             self.mod_osint()
 
-    def prepare_query(self) -> str:
-        MAIN_FILTERS_TYPE = ["name", "username"]
-        SEARCHABLE_BUT_NOT_MAIN_TYPE = ["email", "location", "phone", "occupation"]
+    def prepare_query(self) -> str: 
         QUERY_TEMPLATE = Template(
             "( {{ '\"' + p_0 | join('\" OR \"') + '\"' }} ){% if pos_filters | length > 0 %} AND ( {{ '\"' + pos_filters | join('\" OR \"', attribute='value') + '\"' }} ) {% endif %}{% if neg_filters | length > 0 %} {{ '-\"' + neg_filters | join('\" -\"', attribute='value') + '\"' }}{% endif %}"
         )
@@ -46,11 +45,11 @@ class Search:
             else it is not a searchable filter and cannot be added as a filter.  
         """
         if len(self.filters) != 0:
-            if self.filters[0]["type"] in MAIN_FILTERS_TYPE:
+            if self.filters[0]["type"] in ftype.MAIN_FILTERS:
                 p_0 = [self.filters[0]["value"]]
-            elif self.filters[0]["type"] in SEARCHABLE_BUT_NOT_MAIN_TYPE:
+            elif self.filters[0]["type"] in ftype.FILTERS:
                 p_0 = [self.filters[-1]["value"]]
-                p_i += [filter for filter in self.filters[:-1] if filter["type"] in MAIN_FILTERS_TYPE + SEARCHABLE_BUT_NOT_MAIN_TYPE]
+                p_i += [filter for filter in self.filters[:-1] if filter["type"] in ftype.SEARCHABLE_TYPES]
         # Generating query
         self.query = QUERY_TEMPLATE.render(p_0=p_0, pos_filters=p_i, neg_filters=n_i)
     
