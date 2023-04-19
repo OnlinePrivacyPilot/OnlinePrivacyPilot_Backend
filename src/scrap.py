@@ -26,6 +26,8 @@ class Scrap():
             self.scrapper = GithubScrapper(url)
         elif isurl_linkedin(url):
             self.scrapper = LinkedinScrapper(url)
+        elif isurl_instagram(url):
+            self.scrapper = InstagramScrapper(url)
         else:
             self.scrapper = GenericScrapper(url)
             
@@ -378,6 +380,58 @@ class LinkedinScrapper(AbstractScrapper):
 
         driver.quit()
         return result
+    
+class InstagramScrapper(AbstractScrapper):
+
+    METHOD_NAME = "instagram_scrapper"
+
+    def __init__(self, url):
+        super().__init__(url)
+        # path = urlparse(url).path
+        # username = path.split('/')[1]
+        self.result = self.scrap_data(url)
+
+    def scrap_data(self, url) -> List:
+        result = []
+
+        # Send a GET request to the URL
+        headers = {"User-Agent": USER_AGENT}
+        response = requests.get(url.replace("instagram.com","picnob.com/profile"), headers=headers)
+
+        # Parse the HTML content using BeautifulSoup
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        # Find the user's name
+        if soup.find("h1", {"class": "fullname"}):
+            result.append(
+                {
+                    "type" : "name",
+                    "value" : soup.find("h1", {"class": "fullname"}).text.strip(),
+                    "method" : self.METHOD_NAME
+                }
+            )
+
+        # Find the user's username
+        if soup.find("div", {"class": "username"}):
+            result.append(
+                {
+                    "type" : "username",
+                    "value" : soup.find("div", {"class": "username"}).text.strip(),
+                    "method" : self.METHOD_NAME
+                }
+            )
+
+        # Find the user's bio
+        if soup.find("div", {"class": "sum"}):
+            result.append(
+                {
+                    "type" : "description",
+                    "value" : soup.find("div", {"class": "sum"}).text.strip(),
+                    "method" : self.METHOD_NAME
+                }
+            )
+            
+        return result
 
 class GenericScrapper(AbstractScrapper):
 
@@ -403,6 +457,9 @@ def isurl_social(string: str, matching_urls: List[str]) -> bool:
 
 def isurl_twitter(string):
     return isurl_social(string, ["twitter.com", "mobile.twitter.com"])
+
+def isurl_instagram(string):
+    return isurl_social(string, ["instagram.com", "www.instagram.com"])
 
 def isurl_tiktok(string):
     return isurl_social(string, ["tiktok.com", "www.tiktok.com"])

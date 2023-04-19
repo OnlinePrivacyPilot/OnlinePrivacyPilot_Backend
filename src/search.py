@@ -52,6 +52,7 @@ class Search:
                 p_i += [filter for filter in self.filters[:-1] if filter["type"] in ftype.SEARCHABLE_TYPES]
         # Generating query
         self.query = QUERY_TEMPLATE.render(p_0=p_0, pos_filters=p_i, neg_filters=n_i)
+        print(self.query)
     
     def mod_google(self):
         api_key = credentials.API_KEY
