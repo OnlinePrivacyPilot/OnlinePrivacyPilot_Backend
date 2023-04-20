@@ -76,7 +76,7 @@ class Search:
                 )
 
     def mod_google_no_api(self):
-        url = 'https://www.google.com/search?q='+ self.query.replace(" ", "+")
+        url = 'https://www.google.com/search?nfpr=1&q='+ self.query.replace(" ", "+")
         headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/110.0'}
         response = requests.get(url, headers=headers)
 
