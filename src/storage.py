@@ -1,3 +1,4 @@
+from src import footprint
 from simple_graph_sqlite import database as db
 from simple_graph_sqlite.visualizers import graphviz_visualize
 from typing import Optional
@@ -26,7 +27,16 @@ class Storage:
         """
         filename = unicodedata.normalize('NFKD', target).encode('ASCII', 'ignore').decode()
         return ''.join(char for char in filename if char in "-_ ().%s%s" % (string.digits, string.ascii_letters))
-        
+    
+    def store_graph(self, fp: footprint = None, source_footprint_id: Optional[int] = None) -> None:
+        if isinstance(fp, footprint.Footprint):
+            footprint_id = self.store_node(fp.method, fp.target_type, fp.target)
+            if source_footprint_id:
+                self.store_edge(source_footprint_id, footprint_id)
+            if fp.children_footprints:
+                for child_footprint in fp.children_footprints:
+                    self.store_graph(child_footprint, footprint_id)
+
     def store_node(self, method: str, type: str, value: str) -> int:
         """
         In that function we store a footprint in the graph.

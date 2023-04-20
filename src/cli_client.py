@@ -54,4 +54,5 @@ class cliClient:
                 })
 
         fingerprint = opp.OPP(target=" ".join(args), search_depth=search_depth, initial_filters = initial_filters)
+        storage.Storage().store_graph(fingerprint.get_fingerprint())
         storage.Storage().gen_graphviz()

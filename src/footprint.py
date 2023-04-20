@@ -40,23 +40,6 @@ class Footprint(ABC):
     @abstractmethod
     def process(self) -> None:
         pass
-    
-    def store_fp(self, source_footprint_id: int = None) -> int:
-        """
-        This function is responsible of the storage of our footprint.
-        It will create a node in the database and the edges associated with it. 
-
-        :param source_footprint_id: with this attribute we are able to keep the id of the footprint above the current footprint in the tree. 
-            Used to build edges. Defaults to None.
-        :type source_footprint_id: int, optional
-
-        :returns: the id of the footprint
-        """
-        footprint_id = storage.Storage().store_node(self.method, self.target_type, self.target)
-        if source_footprint_id:
-            storage.Storage().store_edge(source_footprint_id, footprint_id)
-        return footprint_id
-            
 
 class SearchableFootprint(Footprint):
     def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, search_depth: int = 0, source_footprint: Optional[Footprint] = None, initial_filters: Optional[list] = []):
@@ -64,10 +47,8 @@ class SearchableFootprint(Footprint):
         self.source_footprint = source_footprint
         if self.source_footprint:
             self.search_depth = self.source_footprint.search_depth - 1 
-            self.id = self.store_fp(self.source_footprint.id)
         else:
             self.search_depth = search_depth
-            self.id = self.store_fp(None)
         self.initial_filters = initial_filters
         self.process()
 
@@ -97,7 +78,7 @@ class SearchableFootprint(Footprint):
         if footprint.target_type not in ["name", "username", "email", "phone"]:
             while footprint != None and footprint.target_type != "name":
                 footprint = footprint.source_footprint
-            if footprint.target_type == "name":
+            if footprint and footprint.target_type == "name":
                 filters.append(
                     {
                         "value" : footprint.target,
@@ -118,7 +99,6 @@ class ScrapableFootprint(Footprint):
         super().__init__(target, target_type, method)
         self.source_footprint = source_footprint
         self.search_depth = self.source_footprint.search_depth - 1 
-        self.id = self.store_fp(self.source_footprint.id)
         self.process()
         
     def process(self) -> None:
@@ -133,10 +113,6 @@ class TerminalFootprint(Footprint):
     def __init__(self, target: str = None, target_type: Optional[str] = None, method: Optional[str] = None, source_footprint: Optional[Footprint] = None):
         super().__init__(target, target_type, method)
         self.source_footprint = source_footprint
-        if self.source_footprint:
-            self.id = self.store_fp(self.source_footprint.id)
-        else:
-            self.id = self.store_fp(None)
         self.process()
 
     def process(self) -> None:
