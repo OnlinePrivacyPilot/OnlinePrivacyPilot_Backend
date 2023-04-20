@@ -30,7 +30,7 @@ class cliClient:
 
         # Default search depth
         search_depth = 3
-        initial_filter = []
+        initial_filters = []
 
         for opt, value in opts:
             if opt in ["-h", "--help"]:
@@ -39,19 +39,19 @@ class cliClient:
             elif opt in ["-d", "--depth"]:
                 search_depth = int(value)
             elif opt in ["-n", "--negative-filter"]:
-                initial_filter.append(
+                initial_filters.append(
                 {
                     "value" : value,
                     "type" : None,
                     "positive" : False
                 })
             elif opt in ["-p", "--positive-filter"]:
-                initial_filter.append(
+                initial_filters.append(
                 {
                     "value" : value,
                     "type" : None,
                     "positive" : True
                 })
 
-        fingerprint = opp.OPP(target=" ".join(args), search_depth=search_depth, initial_filter = initial_filter)
+        fingerprint = opp.OPP(target=" ".join(args), search_depth=search_depth, initial_filters = initial_filters)
         storage.Storage().gen_graphviz()
