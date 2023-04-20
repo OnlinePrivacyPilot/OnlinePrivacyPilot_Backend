@@ -1,10 +1,11 @@
 from src import search
 from src import scrap
 from src import storage
+from src import ftype
 from abc import ABC, abstractmethod
 from urllib.parse import urlparse
 from typing import Optional
-from src import ftype
+import re
 
 class Footprint(ABC):
     """
@@ -93,16 +94,17 @@ class SearchableFootprint(Footprint):
         
         # If the current footprint is not a name or a username,
         # go back up the path in the tree to retrieve the first name
-        if footprint.target_type != "name" and footprint.target_type != "username":
+        if footprint.target_type not in ["name", "username", "email", "phone"]:
             while footprint != None and footprint.target_type != "name":
                 footprint = footprint.source_footprint
-            filters.append(
-                {
-                    "value" : footprint.target,
-                    "type" : footprint.target_type,
-                    "positive" : footprint.positive
-                }
-            )
+            if footprint.target_type == "name":
+                filters.append(
+                    {
+                        "value" : footprint.target,
+                        "type" : footprint.target_type,
+                        "positive" : footprint.positive
+                    }
+                )
         return filters
     
     def get_initial_filters(self) -> list:
@@ -159,12 +161,14 @@ class RecursionHandler:
         
     @classmethod
     def eval_target_type(cls, target):
-        # URL ?
         if cls.is_url(target):
             return "url"
-        # Name ?
         elif cls.is_name(target):
             return "name"
+        elif cls.is_email(target):
+            return "email"
+        elif cls.is_phone(target):
+            return "phone"
         else:
             return None
     
@@ -188,3 +192,17 @@ class RecursionHandler:
             if not " ".join(word.split()).isalpha():
                 return False
         return True
+
+    def is_email(string: str) -> bool:
+        email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,19}\b'
+        if re.fullmatch(email_regex, string):
+            return True
+        else:
+            return False
+        
+    def is_phone(string: str) -> bool:
+        phone_regex = r'^\+?[0-9]{0,3}[0-9\ ]+$'
+        if re.fullmatch(phone_regex, string):
+            return True
+        else:
+            return False
