@@ -1,4 +1,5 @@
 from src import credentials
+from src import osint
 from googleapiclient.discovery import build
 from jinja2 import Template
 import requests
@@ -18,8 +19,12 @@ class Search:
         self.mod_google()
 
         # In addition, if OSINTABLE filter, call OSINT methods.
-        if len(self.filters) != 0 and self.filters[0]["type"] in ["email", "phone"]:
-            self.mod_osint()
+        if len(self.filters) != 0:
+            if self.filters[0]["type"] == "email":
+                self.result += osint.email(self.filters[0]["value"])
+            elif self.filters[0]["type"] == "phone":
+                self.result += osint.phone(self.filters[0]["value"])
+
 
     def prepare_query(self) -> str: 
         QUERY_TEMPLATE = Template(
@@ -52,7 +57,6 @@ class Search:
                 p_i += [filter for filter in self.filters[:-1] if filter["type"] in ftype.SEARCHABLE_TYPES]
         # Generating query
         self.query = QUERY_TEMPLATE.render(p_0=p_0, pos_filters=p_i, neg_filters=n_i)
-        print(self.query)
     
     def mod_google(self):
         api_key = credentials.API_KEY
@@ -89,8 +93,3 @@ class Search:
                 )
             except KeyError:
                 pass
-
-    
-    def mod_osint(self):
-        pass
-
