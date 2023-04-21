@@ -79,15 +79,3 @@ class Storage:
 
     def gen_graphviz(self):
         graphviz_visualize(self.db_file, self.db_file+'.dot', db.traverse(self.db_file, 1, neighbors_fn=db.find_neighbors))
-
-    def tree_build(self, fp: footprint = None, source_footprint: Optional[int] = None) -> None:
-        if isinstance(fp, footprint.Footprint):
-            global_list = []
-            if source_footprint:
-                global_list = source_footprint.children_footprints
-            if fp.children_footprints:
-                for child_footprint in fp.children_footprints:
-                    global_list.append(child_footprint)
-                    self.tree_build(child_footprint,fp)
-        
-        return global_list

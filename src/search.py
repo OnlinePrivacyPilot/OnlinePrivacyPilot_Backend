@@ -1,10 +1,13 @@
+import json
+from typing import Optional
 from src import credentials
 from src import osint
+from src import ftype
 from googleapiclient.discovery import build
 from jinja2 import Template
 import requests
 from bs4 import BeautifulSoup
-from src import ftype
+
 
 class Search:
     def __init__(self, filters=None, initial_filters=None):
@@ -16,10 +19,13 @@ class Search:
 
     def gen_results(self):
         self.prepare_query()
-        self.mod_google()
+        if SearchOptions.api_key != "":
+            self.mod_google()
+        else:
+            self.mod_google_no_api()
 
         # In addition, if OSINTABLE filter, call OSINT methods.
-        if len(self.filters) != 0:
+        if len(self.filters) != 0 and SearchOptions.active_search == True:
             if self.filters[0]["type"] == "email":
                 self.result += osint.email(self.filters[0]["value"])
             elif self.filters[0]["type"] == "phone":
@@ -59,7 +65,7 @@ class Search:
         self.query = QUERY_TEMPLATE.render(p_0=p_0, pos_filters=p_i, neg_filters=n_i)
     
     def mod_google(self):
-        api_key = credentials.API_KEY
+        api_key = SearchOptions.api_key
         search_engine_id = credentials.SEARCH_ENGINE_ID
 
         service = build("customsearch", "v1", developerKey=api_key)
@@ -93,3 +99,43 @@ class Search:
                 )
             except KeyError:
                 pass
+
+class SearchOptions:
+    _instance = None
+
+    """
+    if API key in config file, then we will consider it.
+        if the config file gives a wrong API it will be handdle by google
+        if there is also an input we will consider the config file and notify the user
+    if no API key and no config file we will create one and append the input
+    if no API key and no input we will apply scrapping techniques
+    if empty key in the config file we will scrap
+    """
+
+    def __new__(cls, api_key : Optional[str]="", active_search : Optional[bool]=False):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls.api_key = api_key
+            cls.active_search = active_search
+            cls.config_file = "config.json"
+            cls.load_config(cls)
+        return cls._instance
+
+    def load_config(cls):
+        try:
+            with open(cls.config_file, "r") as f:
+                config = json.load(f)
+                init_api_key = cls.api_key
+                cls.api_key = config.get("api_key", cls.api_key)
+                #If we found both an API key in the config file and as an input we take the one from the config file
+                if cls.api_key != "" and init_api_key:
+                    raise ValueError("API key found in your configuration file, but also as an input, the one from " + cls.config_file + " will be considered")
+        except (FileNotFoundError):
+            config = {
+            "api_key": cls.api_key,
+            }
+
+            with open(cls.config_file, "w") as f:
+                json.dump(config, f, indent=4)
+        except (ValueError) as e:
+            print(e)
