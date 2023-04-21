@@ -376,8 +376,6 @@ class InstagramScrapper(AbstractScrapper):
 
     def __init__(self, url):
         super().__init__(url)
-        # path = urlparse(url).path
-        # username = path.split('/')[1]
         self.result = self.scrap_data(url)
 
     def scrap_data(self, url) -> List:
