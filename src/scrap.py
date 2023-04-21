@@ -367,17 +367,6 @@ class LinkedinScrapper(AbstractScrapper):
         except NoSuchElementException:
             pass
 
-        try:
-            result.append(
-                {
-                    "type" : "image",
-                    "value" : driver.find_element(By.CLASS_NAME, "artdeco-entity-image").get_attribute("src"),
-                    "method" : self.METHOD_NAME
-                }
-            )
-        except NoSuchElementException:
-            pass
-
         driver.quit()
         return result
     
