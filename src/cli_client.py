@@ -4,6 +4,7 @@ from src import storage
 from src import search
 import sys
 import getopt
+from asciitree import LeftAligned
 
 class cliClient:
     def __init__(self):
@@ -65,5 +66,6 @@ class cliClient:
 
         search.SearchOptions(api_key=api_key, active_search=active_search)
         fingerprint = opp.OPP(target=" ".join(args), search_depth=search_depth, initial_filters = initial_filters)
+        print(LeftAligned()(fingerprint.get_ascii_tree(fingerprint.get_fingerprint())))
         storage.Storage().store_graph(fingerprint.get_fingerprint())
         storage.Storage().gen_graphviz()
