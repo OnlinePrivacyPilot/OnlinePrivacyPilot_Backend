@@ -16,6 +16,7 @@ def cli_usage(output):
     print("\t-p,\t--positive-filter\tspecify one optional positive filter.", file=output)
     print("\t-o,\t--active_search\t\tTrue or False: if activated, OPP will trigger osint techniques", file=output)
     print("\t-k,\t--api_key\t\tto be furnished by the user, if not will scrap", file=output)
+    print("\t-c,\t--cse_id\t\tto be furnished by the user, if not will scrap", file=output)
     print("\n", file=output)
 
 def run():

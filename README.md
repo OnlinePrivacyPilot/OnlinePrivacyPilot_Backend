@@ -25,11 +25,12 @@ pip install -e .
 
 ### Search API Key
 
-As the software uses Google Custom Search API, it's necessary to obtain API key, and put it in the `src/credentials.py` like this :
-```py
-API_KEY = "YOUR_API_KEY"
-SEARCH_ENGINE_ID = "YOUR_SEARCH_ENGINE_ID"
+As the software uses Google Custom Search API, it's necessary to obtain API key and a CSE id.
+To do so you should pass it as an option of the entry command, this could be for instance:
 ```
+oppcli -d 2 -o -k "key_from_user" -c "cse_id_user" "target_user"
+```
+The `-k` option is used to specify the API where the `-c` is linked to the CSE id.
 
 ### Help
 ```
@@ -39,6 +40,11 @@ oppcli -h
 Usage: oppcli [OPTIONS] <target>
 
 General:
-	-h,	--help			print this help.
-	-d,	--depth			specify the maximun depth of the search.
+        -h,     --help                  print this help.
+        -d,     --depth                 specify the maximum depth of the search.
+        -n,     --negative-filter       specify one optional negative filter.
+        -p,     --positive-filter       specify one optional positive filter.
+        -o,     --active_search         True or False: if activated, OPP will trigger osint techniques
+        -k,     --api_key               to be furnished by the user, if not will scrap
+        -c,     --cse_id                to be furnished by the user, if not will scrap
 ```
