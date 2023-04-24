@@ -20,7 +20,7 @@ def cli_usage(output):
 
 def run():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hd:n:p:o:k:", ["help", "depth=", "negative-filter=", "positive-filter=", "active_search=", "api_key="])
+        opts, args = getopt.getopt(sys.argv[1:], "hd:n:p:ok:c:", ["help", "depth=", "negative-filter=", "positive-filter=", "active_search=", "api_key=", "cse_id="])
     except getopt.GetoptError as error:
         print(str(error), file=sys.stderr)
         sys.exit(2)
@@ -34,6 +34,7 @@ def run():
     initial_filters = []
     active_search = False
     api_key = ""
+    cse_id = ""
 
     for opt, value in opts:
         if opt in ["-h", "--help"]:
@@ -56,11 +57,13 @@ def run():
                 "positive" : True
             })
         elif opt in ["-o", "--active_search"]:
-            active_search = value.lower() in ("yes", "true", "t", "1")
+            active_search = True
         elif opt in ["-k", "--api_key"]:
             api_key = value
+        elif opt in ["-c", "--cse_id"]:
+            cse_id = value
 
-    search.SearchOptions(api_key=api_key, active_search=active_search)
+    search.SearchOptions(api_key=api_key, cse_id = cse_id, active_search=active_search)
     fingerprint = opp.OPP(target=" ".join(args), search_depth=search_depth, initial_filters = initial_filters)
     print(LeftAligned()(fingerprint.get_ascii_tree(fingerprint.get_fingerprint())))
     storage.Storage().store_graph(fingerprint.get_fingerprint())

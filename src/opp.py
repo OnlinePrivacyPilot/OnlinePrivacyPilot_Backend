@@ -19,8 +19,11 @@ class OPP:
         if isinstance(fp, footprint.Footprint):
             if fp.children_footprints:
                 if fp.source_footprint:
-                    return OrderedDict([(f"%s (type: %s, method: %s)" % (child_fp.target, child_fp.target_type, child_fp.method), self.get_ascii_tree(child_fp) ) for child_fp in fp.children_footprints])
+                    return OrderedDict([(f"%s (type: %s, method: %s)" % (child_fp.target.replace('\n', ' '), child_fp.target_type, child_fp.method), self.get_ascii_tree(child_fp) ) for child_fp in fp.children_footprints])
                 else:
-                    return {f"%s (type: %s, method: %s)" % (fp.target, fp.target_type, fp.method): OrderedDict([(f"%s (type: %s, method: %s)" % (child_fp.target, child_fp.target_type, child_fp.method), self.get_ascii_tree(child_fp) ) for child_fp in fp.children_footprints])}
+                    return {f"%s (type: %s, method: %s)" % (fp.target.replace('\n', ' '), fp.target_type, fp.method): OrderedDict([(f"%s (type: %s, method: %s)" % (child_fp.target.replace('\n', ' '), child_fp.target_type, child_fp.method), self.get_ascii_tree(child_fp) ) for child_fp in fp.children_footprints])}
             else:
-                return {}
+                if fp.source_footprint:
+                    return {}
+                else: 
+                    return {f"%s (type: %s, method: %s)" % (fp.target.replace('\n', ' '), fp.target_type, fp.method): {}}

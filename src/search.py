@@ -19,7 +19,7 @@ class Search:
 
     def gen_results(self):
         self.prepare_query()
-        if SearchOptions.api_key != "":
+        if SearchOptions.api_key != "" and SearchOptions.cse_id != "":
             self.mod_google()
         else:
             self.mod_google_no_api()
@@ -65,8 +65,9 @@ class Search:
         self.query = QUERY_TEMPLATE.render(p_0=p_0, pos_filters=p_i, neg_filters=n_i)
     
     def mod_google(self):
+        print("API")
         api_key = SearchOptions.api_key
-        search_engine_id = credentials.SEARCH_ENGINE_ID
+        search_engine_id = SearchOptions.cse_id
 
         service = build("customsearch", "v1", developerKey=api_key)
         result = service.cse().list(q=self.query, cx=search_engine_id).execute()
@@ -82,6 +83,7 @@ class Search:
                 )
 
     def mod_google_no_api(self):
+        print("NO API")
         url = 'https://www.google.com/search?nfpr=1&q='+ self.query.replace(" ", "+")
         headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/110.0'}
         response = requests.get(url, headers=headers)
@@ -112,30 +114,10 @@ class SearchOptions:
     if empty key in the config file we will scrap
     """
 
-    def __new__(cls, api_key : Optional[str]="", active_search : Optional[bool]=False):
+    def __new__(cls, api_key : Optional[str]="", cse_id:Optional[str]="", active_search : Optional[bool]=False):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls.api_key = api_key
             cls.active_search = active_search
-            cls.config_file = "config.json"
-            cls.load_config(cls)
+            cls.cse_id = cse_id
         return cls._instance
-
-    def load_config(cls):
-        try:
-            with open(cls.config_file, "r") as f:
-                config = json.load(f)
-                init_api_key = cls.api_key
-                cls.api_key = config.get("api_key", cls.api_key)
-                #If we found both an API key in the config file and as an input we take the one from the config file
-                if cls.api_key != "" and init_api_key:
-                    raise ValueError("API key found in your configuration file, but also as an input, the one from " + cls.config_file + " will be considered")
-        except (FileNotFoundError):
-            config = {
-            "api_key": cls.api_key,
-            }
-
-            with open(cls.config_file, "w") as f:
-                json.dump(config, f, indent=4)
-        except (ValueError) as e:
-            print(e)
