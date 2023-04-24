@@ -51,7 +51,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'oppcli=src.cli_client:cliClient',
+            'oppcli=src.cli_client:run',
         ]
     },
     cmdclass={
