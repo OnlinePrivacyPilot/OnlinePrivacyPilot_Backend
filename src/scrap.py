@@ -320,7 +320,8 @@ class LinkedinScrapper(AbstractScrapper):
 
         driver = webdriver.Chrome(service=service, options=options)
         driver.delete_all_cookies()
-        driver.get(url)
+        #To be sure we have access to the linkedIn link, we are adding a referer header
+        driver.get(url+"?original_referer=https%3A%2F%2Fwww.google.com%2F")
         driver.implicitly_wait(10)
 
         try:
