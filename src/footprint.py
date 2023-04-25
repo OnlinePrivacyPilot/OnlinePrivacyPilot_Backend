@@ -133,6 +133,9 @@ class RecursionHandler:
     
     @classmethod
     def get_root(cls, target: str = None, search_depth: int = 0, initial_filters: Optional[list] = []) -> Footprint:
+            for i in range(len(initial_filters)):
+                if not initial_filters[i]["type"]:
+                    initial_filters[i]["type"] = cls.eval_target_type(initial_filters[i]["value"])
             return SearchableFootprint(target=target, target_type=cls.eval_target_type(target), method="user_input", search_depth=(search_depth - 1), initial_filters=initial_filters)
         
     @classmethod
