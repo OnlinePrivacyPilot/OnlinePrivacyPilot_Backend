@@ -19,7 +19,7 @@ class Search:
 
     def gen_results(self):
         self.prepare_query()
-        if SearchOptions.api_key != "" and SearchOptions.cse_id != "":
+        if SearchOptions().api_key and SearchOptions().cse_id:
             self.mod_google()
         else:
             self.mod_google_no_api()
@@ -65,7 +65,6 @@ class Search:
         self.query = QUERY_TEMPLATE.render(p_0=p_0, pos_filters=p_i, neg_filters=n_i)
     
     def mod_google(self):
-        print("API")
         api_key = SearchOptions.api_key
         search_engine_id = SearchOptions.cse_id
 
@@ -83,7 +82,6 @@ class Search:
                 )
 
     def mod_google_no_api(self):
-        print("NO API")
         url = 'https://www.google.com/search?nfpr=1&q='+ self.query.replace(" ", "+")
         headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/110.0'}
         response = requests.get(url, headers=headers)
@@ -114,7 +112,7 @@ class SearchOptions:
     if empty key in the config file we will scrap
     """
 
-    def __new__(cls, api_key : Optional[str]="", cse_id:Optional[str]="", active_search : Optional[bool]=False):
+    def __new__(cls, api_key : Optional[str] = None, cse_id:Optional[str] =  None, active_search : Optional[bool] = False):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls.api_key = api_key
