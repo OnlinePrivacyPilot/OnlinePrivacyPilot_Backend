@@ -141,6 +141,8 @@ class RecursionHandler:
             return "url"
         elif cls.is_name(target):
             return "name"
+        elif cls.is_username(target):
+            return "username"
         elif cls.is_email(target):
             return "email"
         elif cls.is_phone(target):
@@ -168,6 +170,13 @@ class RecursionHandler:
             if not " ".join(word.split()).isalpha():
                 return False
         return True
+    
+    def is_username(string: str) -> bool:
+        username_regex = r'^[A-Za-z0-9_]+$'
+        if re.fullmatch(username_regex, string):
+            return True
+        else:
+            return False
 
     def is_email(string: str) -> bool:
         email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,19}\b'
