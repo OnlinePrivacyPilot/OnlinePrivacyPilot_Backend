@@ -50,17 +50,12 @@ class Search:
 
         """
             input: list of previous filters obtained in the path
-            take the first element of the list
-            if this is a filter searchable but not main, consider p_0 as the last element and iterate on the list while adding filters as positive ones
-            elif if it is a main filter, consider p_0 again and iterate backwards, adding filters as positive ones until you find another main filter.
-            else it is not a searchable filter and cannot be added as a filter.  
+            the main filter is always the last in the list
+            all other elements of the list if exist are considered as positive filters
         """
         if len(self.filters) != 0:
-            if self.filters[0]["type"] in ftype.MAIN_FILTERS:
-                p_0 = [self.filters[0]["value"]]
-            elif self.filters[0]["type"] in ftype.FILTERS:
-                p_0 = [self.filters[-1]["value"]]
-                p_i += [filter for filter in self.filters[:-1] if filter["type"] in ftype.SEARCHABLE_TYPES]
+            p_0 = [self.filters[-1]["value"]]
+            p_i += [filter for filter in self.filters[:-1] if filter["type"] in ftype.SEARCHABLE_TYPES]
         # Generating query
         self.query = QUERY_TEMPLATE.render(p_0=p_0, pos_filters=p_i, neg_filters=n_i)
     
