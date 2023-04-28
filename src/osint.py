@@ -95,7 +95,7 @@ async def megadose_toolkit(launch_method, websites, target):
         for asset in out if asset["exists"] == True ]
 
 def email(target_email):
-    websites = get_functions(import_submodules("holehe.modules"))
+    websites = get_functions(import_submodules("holehe.modules.social_media"))
     return trio.run(megadose_toolkit, launch_holehe, websites, target_email)
 
 def phone(target_phone):
