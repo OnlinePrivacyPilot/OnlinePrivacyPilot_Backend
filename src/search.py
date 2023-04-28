@@ -58,24 +58,31 @@ class Search:
             p_i += [filter for filter in self.filters[:-1] if filter["type"] in ftype.SEARCHABLE_TYPES]
         # Generating query
         self.query = QUERY_TEMPLATE.render(p_0=p_0, pos_filters=p_i, neg_filters=n_i)
+        print(self.query)
     
     def mod_google(self):
         api_key = SearchOptions.api_key
         search_engine_id = SearchOptions.cse_id
 
-        service = build("customsearch", "v1", developerKey=api_key)
-        result = service.cse().list(q=self.query, cx=search_engine_id).execute()
+        number_of_page = 3
+        start = 1
+        result = {}
+        #Result per page is apparently set to 10 by default
 
-        if "items" in result:
-            for item in result["items"]:
-                self.result.append(
-                    {
-                        "type" : "url",
-                        "value" : item["link"],
-                        "method" : "google"
-                    }
-                )
-
+        while start < number_of_page*10:
+            service = build("customsearch", "v1", developerKey=api_key)
+            result = service.cse().list(q=self.query, cx=search_engine_id, start=start).execute()
+            if "items" in result:
+                for item in result["items"]:
+                    self.result.append(
+                        {
+                            "type" : "url",
+                            "value" : item["link"],
+                            "method" : "google"
+                        }
+                    )
+            start += 10
+                   
     def mod_google_no_api(self):
         url = 'https://www.google.com/search?nfpr=1&q='+ self.query.replace(" ", "+")
         headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/110.0'}
@@ -97,15 +104,6 @@ class Search:
 
 class SearchOptions:
     _instance = None
-
-    """
-    if API key in config file, then we will consider it.
-        if the config file gives a wrong API it will be handdle by google
-        if there is also an input we will consider the config file and notify the user
-    if no API key and no config file we will create one and append the input
-    if no API key and no input we will apply scrapping techniques
-    if empty key in the config file we will scrap
-    """
 
     def __new__(cls, api_key : Optional[str] = None, cse_id:Optional[str] =  None, active_search : Optional[bool] = False):
         if cls._instance is None:
