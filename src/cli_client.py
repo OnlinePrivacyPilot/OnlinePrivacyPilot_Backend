@@ -67,5 +67,6 @@ def run():
     search.SearchOptions(api_key=api_key, cse_id=cse_id, active_search=active_search)
     fingerprint = opp.OPP(target=" ".join(args), search_depth=search_depth, initial_filters = initial_filters)
     print(LeftAligned()(fingerprint.get_ascii_tree(fingerprint.get_fingerprint())))
-    storage.Storage().store_graph(fingerprint.get_fingerprint())
-    storage.Storage().gen_graphviz()
+    db = storage.Storage("_".join(args).replace(' ', '_')+".db")
+    db.store_graph(fingerprint.get_fingerprint())
+    db.gen_graphviz()
