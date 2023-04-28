@@ -26,3 +26,36 @@ class OPP:
                     return {}
                 else: 
                     return {f"%s (type: %s, method: %s)" % (fp.target.replace('\n', ' '), fp.target_type, fp.method): {}}
+
+    def get_json_tree(self, fp: footprint):
+        if isinstance(fp, footprint.Footprint):
+            if fp.children_footprints:
+                if fp.source_footprint:
+                    return [{
+                                "value": child_fp.target.replace('\n', ' '),
+                                "type": child_fp.target_type,
+                                "method": child_fp.method,
+                                "child": self.get_json_tree(child_fp)
+                            } for child_fp in fp.children_footprints ]
+                else:
+                    return {
+                                "value": fp.target.replace('\n', ' '),
+                                "type": fp.target_type,
+                                "method": fp.method,
+                                "child": [{
+                                            "value": child_fp.target.replace('\n', ' '),
+                                            "type": child_fp.target_type,
+                                            "method": child_fp.method,
+                                            "child": self.get_json_tree(child_fp)
+                                        } for child_fp in fp.children_footprints ]
+                            }
+            else:
+                if fp.source_footprint:
+                    return {}
+                else: 
+                    return {
+                                "value": fp.target.replace('\n', ' '),
+                                "type": fp.target_type,
+                                "method": fp.method,
+                                "child": []
+                            }

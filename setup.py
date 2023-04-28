@@ -52,6 +52,7 @@ setup(
     entry_points={
         'console_scripts': [
             'oppcli=src.cli_client:run',
+            'oppapi=src.rest_api:run'
         ]
     },
     cmdclass={
