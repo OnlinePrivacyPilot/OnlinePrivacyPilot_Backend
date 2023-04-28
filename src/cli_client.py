@@ -12,16 +12,18 @@ def cli_usage(output):
     print("General:", file=output)
     print("\t-h,\t--help\t\t\tprint this help.", file=output)
     print("\t-d,\t--depth\t\t\tspecify the maximum depth of the search.", file=output)
-    print("\t-n,\t--negative-filter\tspecify one optional negative filter.", file=output)
-    print("\t-p,\t--positive-filter\tspecify one optional positive filter.", file=output)
-    print("\t-o,\t--active_search\t\tTrue or False: if activated, OPP will trigger osint techniques", file=output)
-    print("\t-k,\t--api_key\t\tto be furnished by the user, if not will scrap", file=output)
-    print("\t-c,\t--cse_id\t\tto be furnished by the user, if not will scrap", file=output)
+    print("\t-n,\t--negative-filter\tspecify optional negative filter.", file=output)
+    print("\t-p,\t--positive-filter\tspecify optional positive filter.", file=output)
+    print("\t-o,\t--active_search\t\tactivate OSINT techniques in the research process", file=output)
+    print("\t-q,\t--quiet\t\t\tdisable the display of the ascii tree in output", file=output)
+    print("\t-s,\t--store\t\t\tstore obtained fingerprint as : none (default), db (SQLITE file only), dot (SQLITE file + DOT file + PNG)", file=output)
+    print("\t-k,\t--api_key\t\tspecify Google search API Key, if empty, the program will get results using a scrapping library", file=output)
+    print("\t-c,\t--cse_id\t\tspecify Custom Search Engine ID, if empty, the program will get results using a scrapping library", file=output)
     print("\n", file=output)
 
 def run():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hd:n:p:ok:c:", ["help", "depth=", "negative-filter=", "positive-filter=", "active_search=", "api_key=", "cse_id="])
+        opts, args = getopt.getopt(sys.argv[1:], "hd:n:p:ok:c:qs:", ["help", "depth=", "negative-filter=", "positive-filter=", "active_search=", "api_key=", "cse_id=", "quiet", "store="])
     except getopt.GetoptError as error:
         print(str(error), file=sys.stderr)
         sys.exit(2)
@@ -36,6 +38,8 @@ def run():
     active_search = False
     api_key = ""
     cse_id = ""
+    quiet = False
+    store = "none"
 
     for opt, value in opts:
         if opt in ["-h", "--help"]:
@@ -63,10 +67,24 @@ def run():
             api_key = value
         elif opt in ["-c", "--cse_id"]:
             cse_id = value
+        elif opt in ["-q", "--quiet"]:
+            quiet = True
+        elif opt in ["-s", "--store"]:
+            if value in ["db", "dot"]:
+                store = value
 
+    # Set search options
     search.SearchOptions(api_key=api_key, cse_id=cse_id, active_search=active_search)
+    # Generate Fingerprint
     fingerprint = opp.OPP(target=" ".join(args), search_depth=search_depth, initial_filters = initial_filters)
-    print(LeftAligned()(fingerprint.get_ascii_tree(fingerprint.get_fingerprint())))
-    db = storage.Storage("_".join(args).replace(' ', '_')+".db")
-    db.store_graph(fingerprint.get_fingerprint())
-    db.gen_graphviz()
+
+    # Console output
+    if not quiet:
+        print(LeftAligned()(fingerprint.get_ascii_tree(fingerprint.get_fingerprint())))
+    
+    # Results storage
+    if store in ["db", "dot"]:
+        db = storage.Storage("_".join(args).replace(' ', '_')+".db")
+        db.store_graph(fingerprint.get_fingerprint())
+    if store == "dot":
+        db.gen_graphviz()
