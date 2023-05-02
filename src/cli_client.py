@@ -75,15 +75,16 @@ def run():
     # Set search options
     search.SearchOptions(api_key=api_key, cse_id=cse_id, active_search=active_search)
     # Generate Fingerprint
-    fingerprint = opp.OPP(target=" ".join(args), search_depth=search_depth, initial_filters = initial_filters)
+    research_instance = opp.OPP(target=" ".join(args), search_depth=search_depth, initial_filters = initial_filters)
+    fingerprint = research_instance.get_fingerprint()
 
     # Console output
     if not quiet:
-        print(LeftAligned()(fingerprint.get_ascii_tree(fingerprint.get_fingerprint())))
+        print(LeftAligned()(research_instance.get_ascii_tree(fingerprint)))
     
     # Results storage
     if store in ["db", "dot"]:
         db = storage.Storage("_".join(args).replace(' ', '_')+".db")
-        db.store_graph(fingerprint.get_fingerprint())
+        db.store_graph(fingerprint)
     if store == "dot":
         db.gen_graphviz()

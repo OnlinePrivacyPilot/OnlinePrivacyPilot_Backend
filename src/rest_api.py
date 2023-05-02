@@ -54,6 +54,7 @@ def run():
 
         # Request is valid : process it 
         search.SearchOptions(api_key=api_key, cse_id=cse_id, active_search=active_search)
-        fingerprint = opp.OPP(target=target, search_depth=depth, initial_filters = initial_filters)
-        return fingerprint.get_json_tree(fingerprint.get_fingerprint())
+        research_instance = opp.OPP(target=target, search_depth=depth, initial_filters = initial_filters)
+        fingerprint = research_instance.get_fingerprint()
+        return research_instance.get_json_tree(fingerprint)
     app.run()

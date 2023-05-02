@@ -7,11 +7,10 @@ class OPP:
         self.target = target
         self.target_type = target_type
         self.search_depth = search_depth
-        self.fingerprint = footprint.RecursionHandler.get_root(target=self.target, search_depth=search_depth, initial_filters=initial_filters)
-
+        self.initial_filters = initial_filters
 
     def get_fingerprint(self):
-        return self.fingerprint
+        return footprint.RecursionHandler.get_root(fingerprint=self, target=self.target, search_depth=self.search_depth, initial_filters=self.initial_filters)
 
     def get_ascii_tree(self, fp: footprint):
         if isinstance(fp, footprint.Footprint):
