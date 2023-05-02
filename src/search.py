@@ -1,6 +1,4 @@
-import json
 from typing import Optional
-from src import credentials
 from src import osint
 from src import ftype
 from googleapiclient.discovery import build

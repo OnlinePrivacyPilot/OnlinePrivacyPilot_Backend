@@ -1,6 +1,5 @@
 from src import search
 from src import scrap
-from src import storage
 from src import ftype
 from abc import ABC, abstractmethod
 from urllib.parse import urlparse
