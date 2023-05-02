@@ -2,6 +2,7 @@ from src import opp
 from src import search
 from src import ftype
 from flask import Flask, request
+from flask_cors import CORS
 from marshmallow import Schema, fields, validate
 
 class FilterSchema(Schema):
@@ -26,6 +27,7 @@ filter_list_schema = FilterListSchema()
 
 def run():
     app = Flask(__name__)
+    cors = CORS(app)
 
     @app.route('/api/', methods=['POST', 'GET'])
     def opp_api():
