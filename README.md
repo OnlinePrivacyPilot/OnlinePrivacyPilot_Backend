@@ -42,9 +42,11 @@ Usage: oppcli [OPTIONS] <target>
 General:
         -h,     --help                  print this help.
         -d,     --depth                 specify the maximum depth of the search.
-        -n,     --negative-filter       specify one optional negative filter.
-        -p,     --positive-filter       specify one optional positive filter.
-        -o,     --active_search         True or False: if activated, OPP will trigger osint techniques
-        -k,     --api_key               to be furnished by the user, if not will scrap
-        -c,     --cse_id                to be furnished by the user, if not will scrap
+        -n,     --negative-filter       specify optional negative filter.
+        -p,     --positive-filter       specify optional positive filter.
+        -o,     --active_search         activate OSINT techniques in the research process
+        -q,     --quiet                 disable the display of the ascii tree in output
+        -s,     --store                 store obtained fingerprint as : none (default), db (SQLITE file only), dot (SQLITE file + DOT file + PNG)
+        -k,     --api_key               specify Google search API Key, if empty, the program will get results using a scrapping library
+        -c,     --cse_id                specify Custom Search Engine ID, if empty, the program will get results using a scrapping library
 ```
