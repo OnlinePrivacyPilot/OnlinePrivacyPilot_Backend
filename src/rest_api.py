@@ -44,7 +44,7 @@ def run():
 
         # Evaluation and validation of initial filters
         try:
-            initial_filters = list(eval(request.args.get('initial_filters', [])))
+            initial_filters = list(eval(request.args.get('initial_filters', '[]')))
         except SyntaxError:
             return {'errors': {"initial_filters":["SyntaxError"]}}, 400
 
