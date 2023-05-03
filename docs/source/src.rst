@@ -1,17 +1,6 @@
 Functional overview
 ===================
 
-Submodules
-----------
-
-Accuracy
--------------------
-
-.. automodule:: src.accuracy
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Analyze
 ------------------
 
@@ -20,7 +9,7 @@ Analyze
    :undoc-members:
    :show-inheritance:
 
-Entry Point
+Command Line Client
 ----------------------
 
 .. automodule:: src.cli_client
@@ -28,10 +17,10 @@ Entry Point
    :undoc-members:
    :show-inheritance:
 
-Credentials
+Rest API
 ----------------------
 
-.. automodule:: src.credentials
+.. automodule:: src.rest_api
    :members:
    :undoc-members:
    :show-inheritance:
@@ -45,10 +34,10 @@ Footprint
    :show-inheritance:
     .. automethod:: __init__
 
-OPP
---------------
+FingerprintHandler
+-------------------
 
-.. automodule:: src.opp
+.. automodule:: src.fingerprint_handler
    :members:
    :undoc-members:
    :show-inheritance:
