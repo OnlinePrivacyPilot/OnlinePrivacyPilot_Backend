@@ -1,4 +1,4 @@
-from src import opp
+from src import fingerprint_handler
 from src import storage
 from src import search
 import sys
@@ -75,7 +75,7 @@ def run():
     # Set search options
     search.SearchOptions(api_key=api_key, cse_id=cse_id, active_search=active_search)
     # Generate Fingerprint
-    research_instance = opp.OPP(target=" ".join(args), search_depth=search_depth, initial_filters = initial_filters)
+    research_instance = fingerprint_handler.FingerprintHandler(target=" ".join(args), search_depth=search_depth, initial_filters = initial_filters)
     fingerprint = research_instance.get_fingerprint()
 
     # Console output

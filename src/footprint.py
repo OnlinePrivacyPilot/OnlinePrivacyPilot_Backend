@@ -1,4 +1,4 @@
-from src import opp
+from src import fingerprint_handler
 from src import search
 from src import scrap
 from src import ftype
@@ -8,24 +8,17 @@ from typing import Optional
 import re
 
 class Footprint(ABC):
-    """
-    This class is an abstract class that will define all the common attributes and method we want for our different type of footprint.
+    """ This class is an abstract class that will define all the common attributes and method we want for our different types of footprint.
 
-    Args:
-        ABC (class): Here we are specifying that the class contains an abstract method.
+    Attributes:
+        belongs_to (fingerprint_handler): Fingerprint to which the footprint belongs
+        target (str): Value of the footprint
+        target_type (Optional[str], optional): Type of the  of the footprint. Defaults to None.
+        method (Optional[str], optional): Method used to obtain footprint. Defaults to None.
     """
     _instances = []
 
-    def __init__(self, fingerprint: opp, target: str, target_type: Optional[str] = None, method: Optional[str] = None):
-        """
-        Init function
-
-        Args:
-            fingerprint (opp.OPP): Fingerprint to which the footprint belongs
-            target (str): Value of the footprint
-            target_type (Optional[str], optional): Type of the  of the footprint. Defaults to None.
-            method (Optional[str], optional): Method used to obtain footprint. Defaults to None.
-        """
+    def __init__(self, fingerprint: fingerprint_handler, target: str, target_type: Optional[str] = None, method: Optional[str] = None):
         Footprint._instances.append(self)
         self.belongs_to = fingerprint
         self.target = target
@@ -42,7 +35,18 @@ class Footprint(ABC):
         pass
 
 class SearchableFootprint(Footprint):
-    def __init__(self, fingerprint: opp, target: str, target_type: Optional[str] = None, method: Optional[str] = None, search_depth: int = 0, source_footprint: Optional[Footprint] = None, initial_filters: Optional[list] = []):
+    """ This class is inherited from Footprint, and is used to manage all types of footprint which be used to make queries to a search engine
+
+    Attributes:
+        belongs_to (fingerprint_handler): inherited from Footprint
+        target (str): inherited from Footprint
+        target_type (Optional[str], optional): inherited from Footprint. Defaults to None.
+        method (Optional[str], optional): inherited from Footprint. Defaults to None.
+        search_depth (int, optional): Number of recursions remaining on the footprint. Defaults to 0.
+        source_footprint (Optional[Footprint], optional): Footprint from which current one was obtained. Defaults to None.
+        initial_filters (Optional[list], optional): Search filters given by the user. Defaults to [].
+    """
+    def __init__(self, fingerprint: fingerprint_handler, target: str, target_type: Optional[str] = None, method: Optional[str] = None, search_depth: int = 0, source_footprint: Optional[Footprint] = None, initial_filters: Optional[list] = []):
         super().__init__(fingerprint, target, target_type, method)
         self.source_footprint = source_footprint
         if self.source_footprint:
@@ -54,6 +58,10 @@ class SearchableFootprint(Footprint):
 
 
     def process(self) -> None:
+        """
+        This function instanciate :class:`Search <src.search.Search>` class, the results obtained are used to create new footprints objects by using :class:`RecursionHandler`
+
+        """
         search_obj = search.Search(filters=self.get_filters(), initial_filters=self.get_initial_filters())
         for item in search_obj.result:
             self.children_footprints.append(
@@ -95,7 +103,17 @@ class SearchableFootprint(Footprint):
         return footprint.initial_filters
 
 class ScrapableFootprint(Footprint):
-    def __init__(self, fingerprint: opp, target: str, target_type: Optional[str] = None, method: Optional[str] = None, source_footprint: Optional[Footprint] = None):
+    """ This class is inherited from Footprint, and is used to manage all types of footprint which point to scrappable ressources
+
+    Attributes:
+        fingerprint (fingerprint_handler): inherited from Footprint
+        target (str): inherited from Footprint
+        target_type (Optional[str], optional): inherited from Footprint. Defaults to None.
+        method (Optional[str], optional): inherited from Footprint. Defaults to None.
+        source_footprint (Optional[Footprint], optional): Footprint from which current one was obtained. Defaults to None.
+    """
+    def __init__(self, fingerprint: fingerprint_handler, target: str, target_type: Optional[str] = None, method: Optional[str] = None, source_footprint: Optional[Footprint] = None):
+
         super().__init__(fingerprint, target, target_type, method)
         self.source_footprint = source_footprint
         self.search_depth = self.source_footprint.search_depth - 1 
@@ -110,7 +128,7 @@ class ScrapableFootprint(Footprint):
 
 
 class TerminalFootprint(Footprint):
-    def __init__(self, fingerprint: opp, target: str, target_type: Optional[str] = None, method: Optional[str] = None, source_footprint: Optional[Footprint] = None):
+    def __init__(self, fingerprint: fingerprint_handler, target: str, target_type: Optional[str] = None, method: Optional[str] = None, source_footprint: Optional[Footprint] = None):
         super().__init__(fingerprint, target, target_type, method)
         self.source_footprint = source_footprint
         self.process()
@@ -121,7 +139,7 @@ class TerminalFootprint(Footprint):
 
 class RecursionHandler:
     @classmethod
-    def get(cls, fingerprint: opp, target: str, method: str, source_footprint: Footprint, target_type: Optional[str] = None) -> Footprint:
+    def get(cls, fingerprint: fingerprint_handler, target: str, method: str, source_footprint: Footprint, target_type: Optional[str] = None) -> Footprint:
         if target_type == None:
             target_type = cls.eval_target_type(target)
         if source_footprint.search_depth > 0 and cls.check_target_not_duplicate(fingerprint, target):
@@ -132,7 +150,7 @@ class RecursionHandler:
         return TerminalFootprint(fingerprint=fingerprint, target=target, target_type=target_type, method=method, source_footprint=source_footprint)
     
     @classmethod
-    def get_root(cls, fingerprint: opp, target: str = None, search_depth: int = 0, initial_filters: Optional[list] = []) -> Footprint:
+    def get_root(cls, fingerprint: fingerprint_handler, target: str = None, search_depth: int = 0, initial_filters: Optional[list] = []) -> Footprint:
             for i in range(len(initial_filters)):
                 if not initial_filters[i]["type"]:
                     initial_filters[i]["type"] = cls.eval_target_type(initial_filters[i]["value"])
@@ -154,7 +172,7 @@ class RecursionHandler:
             return None
     
     @classmethod
-    def check_target_not_duplicate(cls, belongs_to: opp, target: str) -> bool:
+    def check_target_not_duplicate(cls, belongs_to: fingerprint_handler, target: str) -> bool:
         for instance in Footprint.instances():
             if instance.belongs_to == belongs_to and instance.target.lower() == target.lower():
                 return False

@@ -2,7 +2,7 @@ from src import footprint
 from typing import Optional
 from collections import OrderedDict
 
-class OPP:
+class FingerprintHandler:
     def __init__(self, target: str = None, target_type: Optional[str] = None, search_depth: Optional[int] = 3, initial_filters: list = []):
         self.target = target
         self.target_type = target_type

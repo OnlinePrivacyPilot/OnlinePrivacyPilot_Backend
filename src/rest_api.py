@@ -1,4 +1,4 @@
-from src import opp
+from src import fingerprint_handler
 from src import search
 from src import ftype
 from flask import Flask, request
@@ -56,7 +56,7 @@ def run():
 
         # Request is valid : process it 
         search.SearchOptions(api_key=api_key, cse_id=cse_id, active_search=active_search)
-        research_instance = opp.OPP(target=target, search_depth=depth, initial_filters = initial_filters)
+        research_instance = fingerprint_handler.FingerprintHandler(target=target, search_depth=depth, initial_filters = initial_filters)
         fingerprint = research_instance.get_fingerprint()
         return research_instance.get_json_tree(fingerprint)
     app.run()
