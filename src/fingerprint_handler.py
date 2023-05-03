@@ -12,7 +12,7 @@ class FingerprintHandler:
     def get_fingerprint(self):
         return footprint.RecursionHandler.get_root(fingerprint=self, target=self.target, search_depth=self.search_depth, initial_filters=self.initial_filters)
 
-    def get_ascii_tree(self, fp: footprint):
+    def get_ascii_tree(self, fp: footprint.Footprint):
         if isinstance(fp, footprint.Footprint):
             if fp.children_footprints:
                 if fp.source_footprint:
@@ -25,7 +25,7 @@ class FingerprintHandler:
                 else: 
                     return {f"%s (type: %s, method: %s)" % (fp.target.replace('\n', ' '), fp.target_type, fp.method): {}}
 
-    def get_json_tree(self, fp: footprint):
+    def get_json_tree(self, fp: footprint.Footprint):
         if isinstance(fp, footprint.Footprint):
             if fp.children_footprints:
                 if fp.source_footprint:
