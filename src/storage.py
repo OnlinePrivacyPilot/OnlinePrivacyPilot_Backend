@@ -7,7 +7,7 @@ import unicodedata
 import string
 
 class Storage:
-    def __new__(cls, target: Optional[str] = None):
+    def __new__(cls, target: str = None):
         if not hasattr(cls, 'instance'):
             cls.instance = super(Storage, cls).__new__(cls)
             cls.footprint_id = 0
@@ -28,7 +28,7 @@ class Storage:
         filename = unicodedata.normalize('NFKD', target).encode('ASCII', 'ignore').decode()
         return ''.join(char for char in filename if char in "-_ ().%s%s" % (string.digits, string.ascii_letters))
     
-    def store_graph(self, fp: footprint = None, source_footprint_id: Optional[int] = None) -> None:
+    def store_graph(self, fp: footprint = None, source_footprint_id: int = None) -> None:
         if isinstance(fp, footprint.Footprint):
             footprint_id = self.store_node(fp.method, fp.target_type, fp.target)
             if source_footprint_id:

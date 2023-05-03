@@ -102,7 +102,7 @@ class Search:
 class SearchOptions:
     _instance = None
 
-    def __new__(cls, api_key : Optional[str] = None, cse_id:Optional[str] =  None, active_search : Optional[bool] = False):
+    def __new__(cls, api_key: str = None, cse_id: str =  None, active_search : bool = False):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls.api_key = api_key
