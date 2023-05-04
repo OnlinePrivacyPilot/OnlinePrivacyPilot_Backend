@@ -20,17 +20,17 @@ class Search:
         Here is the example list of filters to show the structure :
 
         >>> filters = [
-            {
-                "value" : "Paris",
-                "type" : "location",
-                "positive" : True
-            },
-            {
-                "value" : "Paul Martin",
-                "type" : "name",
-                "positive" : True
-            }
-        ]
+        ...     {
+        ...         "value" : "Paris",
+        ...         "type" : "location",
+        ...         "positive" : True
+        ...     },
+        ...     {
+        ...         "value" : "Paul Martin",
+        ...         "type" : "name",
+        ...         "positive" : True
+        ...     }
+        ... ]
 
     """
     def __init__(self, filters: list = [], initial_filters: list = []):
