@@ -26,6 +26,11 @@ opp_search_schema = OPPSearchSchema()
 filter_list_schema = FilterListSchema()
 
 def run():
+    """ This function launches Flask app to serve the REST API of OPP 
+
+    Returns:
+        HTTP response
+    """
     app = Flask(__name__)
     cors = CORS(app)
 
