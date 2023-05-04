@@ -1,14 +1,6 @@
 Functional overview
 ===================
 
-Analyze
-------------------
-
-.. automodule:: src.analyze
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Command Line Client
 ----------------------
 
