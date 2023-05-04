@@ -1,4 +1,4 @@
-from src import footprint
+from opp import footprint
 from simple_graph_sqlite import database as db
 from simple_graph_sqlite.visualizers import graphviz_visualize
 from typing import Optional

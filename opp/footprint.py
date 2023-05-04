@@ -1,6 +1,6 @@
-from src import search
-from src import scrap
-from src import ftype
+from opp import search
+from opp import scrap
+from opp import ftype
 from abc import ABC, abstractmethod
 from urllib.parse import urlparse
 import re

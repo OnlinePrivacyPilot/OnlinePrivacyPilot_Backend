@@ -1,6 +1,6 @@
-from src import fingerprint_handler
-from src import storage
-from src import search
+from opp import fingerprint_handler
+from opp import storage
+from opp import search
 import sys
 import getopt
 from asciitree import LeftAligned

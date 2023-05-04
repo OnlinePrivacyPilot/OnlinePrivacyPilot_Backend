@@ -1,6 +1,6 @@
-from src import fingerprint_handler
-from src import search
-from src import ftype
+from opp import fingerprint_handler
+from opp import search
+from opp import ftype
 from flask import Flask, request
 from flask_cors import CORS
 from marshmallow import Schema, fields, validate

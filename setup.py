@@ -32,7 +32,7 @@ class CustomBuild(build_py):
         build_py.run(self)
 
 setup(
-    name="src",
+    name="opp",
     version="0.1",
     packages=find_packages(),
     install_requires=[
@@ -51,8 +51,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'oppcli=src.cli_client:run',
-            'oppapi=src.rest_api:run'
+            'oppcli=opp.cli_client:run',
+            'oppapi=opp.rest_api:run'
         ]
     },
     cmdclass={

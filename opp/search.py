@@ -1,6 +1,6 @@
 from typing import Optional
-from src import osint
-from src import ftype
+from opp import osint
+from opp import ftype
 from googleapiclient.discovery import build
 from jinja2 import Template
 import requests

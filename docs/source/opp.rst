@@ -4,7 +4,7 @@ Functional overview
 Command Line Client
 ----------------------
 
-.. automodule:: src.cli_client
+.. automodule:: opp.cli_client
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,15 +12,12 @@ Command Line Client
 Rest API
 ----------------------
 
-.. automodule:: src.rest_api
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. autofunction:: opp.rest_api.run
 
 Footprint
 --------------------
 
-.. automodule:: src.footprint
+.. automodule:: opp.footprint
    :members:
    :undoc-members:
    :show-inheritance:
@@ -29,7 +26,7 @@ Footprint
 FingerprintHandler
 -------------------
 
-.. automodule:: src.fingerprint_handler
+.. automodule:: opp.fingerprint_handler
    :members:
    :undoc-members:
    :show-inheritance:
@@ -37,7 +34,7 @@ FingerprintHandler
 Scrap
 ----------------
 
-.. automodule:: src.scrap
+.. automodule:: opp.scrap
    :members:
    :undoc-members:
    :show-inheritance:
@@ -45,7 +42,7 @@ Scrap
 Search
 -----------------
 
-.. automodule:: src.search
+.. automodule:: opp.search
    :members:
    :undoc-members:
    :show-inheritance:
@@ -53,7 +50,7 @@ Search
 Storage
 ------------------
 
-.. automodule:: src.storage
+.. automodule:: opp.storage
    :members:
    :undoc-members:
    :show-inheritance:
@@ -61,7 +58,7 @@ Storage
 Module contents
 ---------------
 
-.. automodule:: src
+.. automodule:: opp
    :members:
    :undoc-members:
    :show-inheritance:
