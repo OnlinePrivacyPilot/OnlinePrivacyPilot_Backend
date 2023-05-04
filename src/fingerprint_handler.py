@@ -9,10 +9,23 @@ class FingerprintHandler:
         self.search_depth = search_depth
         self.initial_filters = initial_filters
 
-    def get_fingerprint(self):
+    def get_fingerprint(self) -> footprint.Footprint:
+        """ This method calls :class:`footprint.RecursionHandler` class to build recursively the fingerprint tree.
+
+        Returns:
+            Footprint: Root footprint of the obtained fingerprint
+        """
         return footprint.RecursionHandler.get_root(fingerprint=self, target=self.target, search_depth=self.search_depth, initial_filters=self.initial_filters)
 
-    def get_ascii_tree(self, fp: footprint.Footprint):
+    def get_ascii_tree(self, fp: footprint.Footprint) -> dict:
+        """ This method returns a dictionnary that can be used by asciitree module to display the fingerprint tree in the terminal.
+
+        Args:
+            fp (footprint.Footprint): Fingerprint to display.
+
+        Returns:
+            dict: asciitree compatible dict
+        """
         if isinstance(fp, footprint.Footprint):
             if fp.children_footprints:
                 if fp.source_footprint:
@@ -25,7 +38,15 @@ class FingerprintHandler:
                 else: 
                     return {f"%s (type: %s, method: %s)" % (fp.target.replace('\n', ' '), fp.target_type, fp.method): {}}
 
-    def get_json_tree(self, fp: footprint.Footprint):
+    def get_json_tree(self, fp: footprint.Footprint) -> dict:
+        """ This method returns a dictionnary used in order to make JSON response in the REST API.
+
+        Args:
+            fp (footprint.Footprint): Fingerprint to display.
+
+        Returns:
+            dict: JSON compatible dict
+        """
         if isinstance(fp, footprint.Footprint):
             if fp.children_footprints:
                 if fp.source_footprint:
