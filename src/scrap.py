@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from urllib.parse import urlparse
-from typing import List
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -14,8 +13,10 @@ from selenium.common.exceptions import NoSuchElementException
 USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/110.0"
 
 class Scrap():
-    """
-    Init function
+    """ This class instanciates a specific abstract scrapper according to the given URL.
+
+    Attributes:
+        scrapper (AbstractScrapper): Scrapper that will be used to obtain footprints from URL.
     """
     def __init__(self, url: str = None):
         if isurl_twitter(url):
@@ -33,15 +34,18 @@ class Scrap():
             
 
 class AbstractScrapper(ABC):
+    """ This class is responsible of defining the common behavior for the scrappers.
+
+    Attributes:
+        url (str): URL to scrap
+        result (list): Found footprints.
     """
-    Class responsible of defining the common behavior for the scrappers.
-    """
-    def __init__(self, url):
+    def __init__(self, url: str):
         self.url = url
         self.result = self.scrap_data(url)
 
     @abstractmethod
-    def scrap_data(self, url) -> List:
+    def scrap_data(self, url) -> list:
         return []
 
 class TwitterScrapper(AbstractScrapper):
@@ -50,11 +54,11 @@ class TwitterScrapper(AbstractScrapper):
     """
     METHOD_NAME = "twitter_scrapper"
 
-    def __init__(self, url):
+    def __init__(self, url: str):
         super().__init__(url)
         self.result = self.scrap_data(url)
 
-    def scrap_data(self, url) -> List:
+    def scrap_data(self, url) -> list:
         """
         Retrieve data from twitter
         """
@@ -143,14 +147,14 @@ class TiktokScrapper(AbstractScrapper):
 
     METHOD_NAME = "tiktok_scrapper"
 
-    def __init__(self, url):
+    def __init__(self, url: str):
         super().__init__(url)
         if urlparse(url).path.startswith("/@"): # if it is a tiktok profile page
             self.result = self.scrap_data(url)
         else:
             self.result = []
 
-    def scrap_data(self, url) -> List:
+    def scrap_data(self, url) -> list:
         result = []
 
         # Send a GET request to the URL
@@ -216,11 +220,11 @@ class GithubScrapper(AbstractScrapper):
 
     METHOD_NAME = "github_scrapper"
 
-    def __init__(self, url):
+    def __init__(self, url: str):
         super().__init__(url)
         self.result = self.scrap_data(url)
 
-    def scrap_data(self, url) -> List:
+    def scrap_data(self, url) -> list:
         result = []
 
         # Send a GET request to the URL
@@ -306,11 +310,11 @@ class LinkedinScrapper(AbstractScrapper):
 
     METHOD_NAME = "linkedin_scrapper"
 
-    def __init__(self, url):
+    def __init__(self, url: str):
         super().__init__(url)
         self.result = self.scrap_data(url)
 
-    def scrap_data(self, url) -> List:
+    def scrap_data(self, url) -> list:
         result = []
 
         options = Options()
@@ -375,11 +379,11 @@ class InstagramScrapper(AbstractScrapper):
 
     METHOD_NAME = "instagram_scrapper"
 
-    def __init__(self, url):
+    def __init__(self, url: str):
         super().__init__(url)
         self.result = self.scrap_data(url)
 
-    def scrap_data(self, url) -> List:
+    def scrap_data(self, url) -> list:
         result = []
 
         # Send a GET request to the URL
@@ -425,14 +429,14 @@ class GenericScrapper(AbstractScrapper):
 
     METHOD_NAME = "generic_scrapper"
 
-    def __init__(self, url):
+    def __init__(self, url: str):
         super().__init__(url)
         self.result = self.scrap_data(url)
 
-    def scrap_data(self, url) -> List:
+    def scrap_data(self, url) -> list:
         return []
 
-def isurl_social(string: str, matching_urls: List[str]) -> bool:
+def isurl_social(string: str, matching_urls: list[str]) -> bool:
     try:
         result = urlparse(string)
         if result.netloc in matching_urls:
