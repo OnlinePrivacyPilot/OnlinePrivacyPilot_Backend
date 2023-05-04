@@ -1,3 +1,9 @@
+from sphinx.ext.autodoc import between
+
+def setup(app):
+    app.connect('autodoc-process-docstring', between('^.*EXCLUDE.*$', exclude=True))
+    return app
+
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
