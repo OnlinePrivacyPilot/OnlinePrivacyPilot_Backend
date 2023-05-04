@@ -200,14 +200,33 @@ class RecursionHandler:
         return TerminalFootprint(fingerprint=fingerprint, target=target, target_type=target_type, method=method, source_footprint=source_footprint)
     
     @classmethod
-    def get_root(cls, fingerprint, target: str = None, search_depth: int = 0, initial_filters: list = []) -> Footprint:
-            for i in range(len(initial_filters)):
-                if not initial_filters[i]["type"]:
-                    initial_filters[i]["type"] = cls.eval_target_type(initial_filters[i]["value"])
-            return SearchableFootprint(fingerprint=fingerprint, target=target, target_type=cls.eval_target_type(target), method="user_input", search_depth=(search_depth - 1), initial_filters=initial_filters)
+    def get_root(cls, fingerprint, target: str, search_depth: int = 0, initial_filters: list = []) -> Footprint:
+        """ This method instanciates :class:`SearchableFootprint` class for the first footprint of the tree.
+
+        Args:
+            fingerprint (:class:`FingerprintHandler`): Fingerprint to which the footprint belongs.
+            target (str): Value of the footprint.
+            search_depth (int, optional): Number of recursions remaining on the footprint. Defaults to 0.
+            initial_filters (list, optional): Search filters given by the user. Defaults to [].
+
+        Returns:
+            Footprint: An object :class:`SearchableFootprint` correctly instanciated.
+        """
+        for i in range(len(initial_filters)):
+            if not initial_filters[i]["type"]:
+                initial_filters[i]["type"] = cls.eval_target_type(initial_filters[i]["value"])
+        return SearchableFootprint(fingerprint=fingerprint, target=target, target_type=cls.eval_target_type(target), method="user_input", search_depth=(search_depth - 1), initial_filters=initial_filters)
         
     @classmethod
-    def eval_target_type(cls, target):
+    def eval_target_type(cls, target: str) -> str:
+        """ This method evaluate the target to determine its type.
+
+        Args:
+            target (str): Value of the target to evaluate.
+
+        Returns:
+            str: Type of the given target.
+        """
         if cls.is_url(target):
             return "url"
         elif cls.is_name(target):
@@ -223,6 +242,15 @@ class RecursionHandler:
     
     @classmethod
     def check_target_not_duplicate(cls, belongs_to, target: str) -> bool:
+        """ This method checks if target footprint already exists in the tree, if yes no new recursion will be done on it.
+
+        Args:
+            belongs_to (:class:`FingerprintHandler`): Fingerprint tree to which the check must be limited
+            target (str): Value of the target footprint to check.
+
+        Returns:
+            bool: Existence of the target footprint.
+        """
         for instance in Footprint.instances():
             if instance.belongs_to == belongs_to and instance.target.lower() == target.lower():
                 return False
