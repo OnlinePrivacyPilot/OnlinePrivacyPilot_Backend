@@ -8,7 +8,32 @@ from bs4 import BeautifulSoup
 
 
 class Search:
-    def __init__(self, filters=None, initial_filters=None):
+    """ This class is instanciated with filters from the tree and initial filters given by the user. 
+
+    Attributes:
+        filters (list, optional): Filters from the tree. Defaults to [].
+        initial_filters (list, optional): Initial filters given by the user. Defaults to [].
+        query (str): Query prepared according the filters.
+        result (list): List of obtained footprints.
+    
+    Example:
+        Here is the example list of filters to show the structure :
+
+        >>> filters = [
+            {
+                "value" : "Paris",
+                "type" : "location",
+                "positive" : True
+            },
+            {
+                "value" : "Paul Martin",
+                "type" : "name",
+                "positive" : True
+            }
+        ]
+
+    """
+    def __init__(self, filters: list = [], initial_filters: list = []):
         self.filters = filters
         self.initial_filters = initial_filters
         self.query = ""
@@ -16,6 +41,14 @@ class Search:
         self.gen_results()
 
     def gen_results(self):
+        """ This method calls `prepare_query()` to obtain query,
+        then according the options in :class:`SearchOptions` it calls a search engine method
+        (`mod_google()` or `mod_google_no_api`),
+        finally according the type of the first filter and if OSINT investigations are activated
+        in :class:`SearchOptions`, it calls the right function in osint module.
+
+        All obtained footprints are added to `result` attribute of the current :class:`Search` object.
+        """
         self.prepare_query()
         if SearchOptions().api_key and SearchOptions().cse_id:
             self.mod_google()
@@ -30,7 +63,18 @@ class Search:
                 self.result += osint.phone(self.filters[0]["value"])
 
 
-    def prepare_query(self) -> str: 
+    def prepare_query(self) -> str:
+        """ This method prepares a query according the filters instanciated in the current :class:`Search` object.
+            
+            Here is the strategy : 
+            
+            `filters` are obtained in the current path of the tree, the main filter is always the last of this list,
+            all other elements of the list if exist are considered as positive filters.
+
+            `initial_filters` are simply concatenated to positive and negative filters according the value their attribute "positive". 
+        Returns:
+            str: _description_
+        """
         QUERY_TEMPLATE = Template(
             "( {{ '\"' + p_0 | join('\" OR \"') + '\"' }} ){% if pos_filters | length > 0 %} AND ( {{ '\"' + pos_filters | join('\" OR \"', attribute='value') + '\"' }} ) {% endif %}{% if neg_filters | length > 0 %} {{ '-\"' + neg_filters | join('\" -\"', attribute='value') + '\"' }}{% endif %}"
         )
@@ -46,11 +90,6 @@ class Search:
             else:
                 n_i.append(initf)
 
-        """
-            input: list of previous filters obtained in the path
-            the main filter is always the last in the list
-            all other elements of the list if exist are considered as positive filters
-        """
         if len(self.filters) != 0:
             p_0 = [self.filters[-1]["value"]]
             p_i += [filter for filter in self.filters[:-1] if filter["type"] in ftype.SEARCHABLE_TYPES]
@@ -100,6 +139,13 @@ class Search:
                 pass
 
 class SearchOptions:
+    """ This singleton class allows to store search options : Google API key, Google CSE ID and Active search.
+
+    Attributes:
+        api_key (str, optional): Google API key. Defaults to None.
+        cse_id (str, optional): Google CSE ID. Defaults to None.
+        active_search (bool, optional): This option activates OSINT investigations. Defaults to False.
+    """
     _instance = None
 
     def __new__(cls, api_key: str = None, cse_id: str =  None, active_search : bool = False):
