@@ -47,6 +47,14 @@ Search
    :undoc-members:
    :show-inheritance:
 
+OSINT
+-----------------
+
+.. automodule:: opp.osint
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Storage
 ------------------
 
