@@ -5,7 +5,12 @@ import sys
 import getopt
 from asciitree import LeftAligned
 
-def cli_usage(output):
+def cli_usage(output: str):
+    """ This function prints help for OPP CLI client in the given output.
+
+    Args:
+        output (str): Output to print in.
+    """
     program_name = sys.argv[0].split("/")[-1]
     print(f"Usage: {program_name} [OPTIONS] <target>\n", file=output)
     print("General:", file=output)
@@ -21,6 +26,10 @@ def cli_usage(output):
     print("\n", file=output)
 
 def run():
+    """
+    This function handles the command line interface of OPP
+
+    """
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hd:n:p:ok:c:qs:", ["help", "depth=", "negative-filter=", "positive-filter=", "active_search=", "api_key=", "cse_id=", "quiet", "store="])
     except getopt.GetoptError as error:
