@@ -54,6 +54,8 @@ def run():
             initial_filters = list(eval(request.args.get('initial_filters', '[]')))
         except SyntaxError:
             return {'errors': {"initial_filters":["SyntaxError"]}}, 400
+        except NameError:
+            return {'errors': {"initial_filters":["NameError"]}}, 400
 
         errors_filters = filter_list_schema.validate({"filters": initial_filters})
         if errors_filters:
