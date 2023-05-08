@@ -25,7 +25,7 @@ class TestInitialFilters(unittest.TestCase):
     def __init__(self, methodName: str = "runTest") -> None:
         super().__init__(methodName=methodName)
         self.url = 'http://127.0.0.1:5000/api/?'
-        self.target = "toto"
+        self.target = "test"
 
     """
     OK
@@ -296,7 +296,7 @@ class TestAPIKey(unittest.TestCase):
     def __init__(self, methodName: str = "runTest") -> None:
         super().__init__(methodName=methodName)
         self.url = 'http://127.0.0.1:5000/api/?'
-        self.target = ""
+        self.target = "test"
 
     """
     OK
@@ -304,7 +304,7 @@ class TestAPIKey(unittest.TestCase):
     random api_key correct length
     """
     def test_api_key_1(self):
-        response = requests.get(self.url + 'api_key=' + ''.join(random.choice(string.ascii_lowercase) for i in range(39)))
+        response = requests.get(self.url + 'target=' + self.target + '&api_key=' + ''.join(random.choice(string.ascii_lowercase) for i in range(39)))
         self.assertEqual(response.status_code, 500)
 
     """
@@ -313,7 +313,7 @@ class TestAPIKey(unittest.TestCase):
     random api_key too long
     """
     def test_api_key_2(self):
-        response = requests.get(self.url + 'api_key=' + ''.join(random.choice(string.ascii_lowercase) for i in range(40)))
+        response = requests.get(self.url + 'target=' + self.target + '&api_key=' + ''.join(random.choice(string.ascii_lowercase) for i in range(40)))
         self.assertEqual(response.status_code, 400)
 
 
@@ -323,7 +323,7 @@ class TestAPIKey(unittest.TestCase):
     random api_key 38 of length
     """
     def test_api_key_3(self):
-        response = requests.get(self.url + 'api_key=' + ''.join(random.choice(string.ascii_lowercase) for i in range(38)))
+        response = requests.get(self.url + 'target=' + self.target + '&api_key=' + ''.join(random.choice(string.ascii_lowercase) for i in range(38)))
         self.assertEqual(response.status_code, 400)
 
     """
@@ -332,14 +332,14 @@ class TestAPIKey(unittest.TestCase):
     
     """
     def test_api_key_4(self):
-        response = requests.get(self.url + 'api_key=' + "<?php print('Please specify the name of the file to delete');print('<p>');$file=$_GET['filename'];system('rm $file');?>")
+        response = requests.get(self.url + 'target=' + self.target + '&api_key=' + "<?php print('Please specify the name of the file to delete');print('<p>');$file=$_GET['filename'];system('rm $file');?>")
         self.assertEqual(response.status_code, 400)
 
 class TestCSEId(unittest.TestCase):
     def __init__(self, methodName: str = "runTest") -> None:
         super().__init__(methodName=methodName)
         self.url = 'http://127.0.0.1:5000/api/?'
-        self.target = ""
+        self.target = "test"
 
     """
     OK
@@ -347,7 +347,7 @@ class TestCSEId(unittest.TestCase):
     random cse_id correct length
     """
     def test_cse_id_1(self):
-        response = requests.get(self.url + 'cse_id=' + ''.join(random.choice(string.ascii_lowercase) for i in range(17)))
+        response = requests.get(self.url + 'target=' + self.target + '&cse_id=' + ''.join(random.choice(string.ascii_lowercase) for i in range(17)))
         self.assertEqual(response.status_code, 500)
 
     """
@@ -356,7 +356,7 @@ class TestCSEId(unittest.TestCase):
     random cse_id too long
     """
     def test_cse_id_2(self):
-        response = requests.get(self.url + 'cse_id=' + ''.join(random.choice(string.ascii_lowercase) for i in range(18)))
+        response = requests.get(self.url + 'target=' + self.target + '&cse_id=' + ''.join(random.choice(string.ascii_lowercase) for i in range(18)))
         self.assertEqual(response.status_code, 400)
 
     """
@@ -365,7 +365,7 @@ class TestCSEId(unittest.TestCase):
     random cse_id 38 of length
     """
     def test_cse_id_3(self):
-        response = requests.get(self.url + 'cse_id=' + ''.join(random.choice(string.ascii_lowercase) for i in range(16)))
+        response = requests.get(self.url + 'target=' + self.target + '&cse_id=' + ''.join(random.choice(string.ascii_lowercase) for i in range(16)))
         self.assertEqual(response.status_code, 400)
 
     """
@@ -374,14 +374,14 @@ class TestCSEId(unittest.TestCase):
     
     """
     def test_cse_id_4(self):
-        response = requests.get(self.url + 'cse_id=' + "<?php print('Please specify the name of the file to delete');print('<p>');$file=$_GET['filename'];system('rm $file');?>")
+        response = requests.get(self.url + 'target=' + self.target + '&cse_id=' + "<?php print('Please specify the name of the file to delete');print('<p>');$file=$_GET['filename'];system('rm $file');?>")
         self.assertEqual(response.status_code, 400)
 
 class TestDepth(unittest.TestCase):
     def __init__(self, methodName: str = "runTest") -> None:
         super().__init__(methodName=methodName)
         self.url = 'http://127.0.0.1:5000/api/?'
-        self.target = ""
+        self.target = "test"
 
     """
     OK
@@ -389,7 +389,7 @@ class TestDepth(unittest.TestCase):
     10
     """
     def test_depth_1(self):
-        response = requests.get(self.url + 'depth=10')
+        response = requests.get(self.url + 'target=' + self.target + '&depth=10')
         self.assertEqual(response.status_code, 200)
 
     """
@@ -398,7 +398,7 @@ class TestDepth(unittest.TestCase):
     1
     """
     def test_depth_2(self):
-        response = requests.get(self.url + 'depth=1')
+        response = requests.get(self.url + 'target=' + self.target + '&depth=1')
         self.assertEqual(response.status_code, 200)
 
     """
@@ -407,7 +407,7 @@ class TestDepth(unittest.TestCase):
     "test"
     """
     def test_depth_3(self):
-        response = requests.get(self.url + 'depth="test"')
+        response = requests.get(self.url + 'target=' + self.target + '&depth="test"')
         self.assertEqual(response.status_code, 400)
 
     """
@@ -416,7 +416,7 @@ class TestDepth(unittest.TestCase):
 
     """
     def test_depth_4(self):
-        response = requests.get(self.url + 'depth=')
+        response = requests.get(self.url + 'target=' + self.target + '&depth=')
         self.assertEqual(response.status_code, 400)
 
     """
@@ -425,7 +425,7 @@ class TestDepth(unittest.TestCase):
     20
     """
     def test_depth_5(self):
-        response = requests.get(self.url + 'depth=20')
+        response = requests.get(self.url + 'target=' + self.target + '&depth=20')
         self.assertEqual(response.status_code, 400)
 
     """
@@ -434,7 +434,7 @@ class TestDepth(unittest.TestCase):
     -1
     """
     def test_depth_6(self):
-        response = requests.get(self.url + 'depth=-1')
+        response = requests.get(self.url + 'target=' + self.target + '&depth=-1')
         self.assertEqual(response.status_code, 400)
 
     """
@@ -443,7 +443,7 @@ class TestDepth(unittest.TestCase):
     0.5*4
     """
     def test_depth_7(self):
-        response = requests.get(self.url + 'depth=0.5*4')
+        response = requests.get(self.url + 'target=' + self.target + '&depth=0.5*4')
         self.assertEqual(response.status_code, 400)
 
     """
@@ -452,7 +452,7 @@ class TestDepth(unittest.TestCase):
     5-3
     """
     def test_depth_8(self):
-        response = requests.get(self.url + 'depth=5-3')
+        response = requests.get(self.url + 'target=' + self.target + '&depth=5-3')
         self.assertEqual(response.status_code, 400)
 
     """
@@ -461,7 +461,7 @@ class TestDepth(unittest.TestCase):
     10/2
     """
     def test_depth_9(self):
-        response = requests.get(self.url + 'depth=10/2')
+        response = requests.get(self.url + 'target=' + self.target + '&depth=10/2')
         self.assertEqual(response.status_code, 400)
 
     """
@@ -470,14 +470,14 @@ class TestDepth(unittest.TestCase):
     10%2
     """
     def test_depth_10(self):
-        response = requests.get(self.url + 'depth=10%2')
+        response = requests.get(self.url + 'target=' + self.target + '&depth=10%2')
         self.assertEqual(response.status_code, 400)
 
 class TestActiveSearch(unittest.TestCase):
     def __init__(self, methodName: str = "runTest") -> None:
         super().__init__(methodName=methodName)
         self.url = 'http://127.0.0.1:5000/api/?'
-        self.target = ""
+        self.target = "test"
 
     """
     OK
@@ -485,7 +485,7 @@ class TestActiveSearch(unittest.TestCase):
     0
     """
     def test_active_search_1(self):
-        response = requests.get(self.url + 'active_search=0')
+        response = requests.get(self.url + 'target=' + self.target + '&active_search=0')
         self.assertEqual(response.status_code, 200)
 
     """
@@ -494,7 +494,7 @@ class TestActiveSearch(unittest.TestCase):
     1
     """
     def test_active_search_2(self):
-        response = requests.get(self.url + 'active_search=1')
+        response = requests.get(self.url + 'target=' + self.target + '&active_search=1')
         self.assertEqual(response.status_code, 200)
 
     """
@@ -503,7 +503,7 @@ class TestActiveSearch(unittest.TestCase):
     2
     """
     def test_active_search_3(self):
-        response = requests.get(self.url + 'active_search=2')
+        response = requests.get(self.url + 'target=' + self.target + '&active_search=2')
         self.assertEqual(response.status_code, 400)
 
     """
@@ -512,7 +512,7 @@ class TestActiveSearch(unittest.TestCase):
     -1
     """
     def test_active_search_4(self):
-        response = requests.get(self.url + 'active_search=-1')
+        response = requests.get(self.url + 'target=' + self.target + '&active_search=-1')
         self.assertEqual(response.status_code, 400)
 
     """
@@ -521,7 +521,7 @@ class TestActiveSearch(unittest.TestCase):
     test
     """
     def test_active_search_5(self):
-        response = requests.get(self.url + 'active_search=test')
+        response = requests.get(self.url + 'target=' + self.target + '&active_search=test')
         self.assertEqual(response.status_code, 400)
 
         """
@@ -530,7 +530,7 @@ class TestActiveSearch(unittest.TestCase):
     0.5*2
     """
     def test_active_search_6(self):
-        response = requests.get(self.url + 'active_search=0.5*2')
+        response = requests.get(self.url + 'target=' + self.target + '&active_search=0.5*2')
         self.assertEqual(response.status_code, 400)
 
     """
@@ -539,7 +539,7 @@ class TestActiveSearch(unittest.TestCase):
     5-3
     """
     def test_active_search_7(self):
-        response = requests.get(self.url + 'active_search=2-1')
+        response = requests.get(self.url + 'target=' + self.target + '&active_search=2-1')
         self.assertEqual(response.status_code, 400)
 
     """
@@ -548,7 +548,7 @@ class TestActiveSearch(unittest.TestCase):
     2/4
     """
     def test_active_search_8(self):
-        response = requests.get(self.url + 'active_search=2/4')
+        response = requests.get(self.url + 'target=' + self.target + '&active_search=2/4')
         self.assertEqual(response.status_code, 400)
 
  
