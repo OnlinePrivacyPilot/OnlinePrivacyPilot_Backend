@@ -376,6 +376,181 @@ class TestCSEId(unittest.TestCase):
     def test_cse_id_4(self):
         response = requests.get(self.url + 'cse_id=' + "<?php print('Please specify the name of the file to delete');print('<p>');$file=$_GET['filename'];system('rm $file');?>")
         self.assertEqual(response.status_code, 400)
+
+class TestDepth(unittest.TestCase):
+    def __init__(self, methodName: str = "runTest") -> None:
+        super().__init__(methodName=methodName)
+        self.url = 'http://127.0.0.1:5000/api/?'
+        self.target = ""
+
+    """
+    OK
+    correct integer between 1 and 10
+    10
+    """
+    def test_depth_1(self):
+        response = requests.get(self.url + 'depth=10')
+        self.assertEqual(response.status_code, 200)
+
+    """
+    OK
+    correct integer between 1 and 10
+    1
+    """
+    def test_depth_2(self):
+        response = requests.get(self.url + 'depth=1')
+        self.assertEqual(response.status_code, 200)
+
+    """
+    KO
+    string input
+    "test"
+    """
+    def test_depth_3(self):
+        response = requests.get(self.url + 'depth="test"')
+        self.assertEqual(response.status_code, 400)
+
+    """
+    KO
+    empty input
+
+    """
+    def test_depth_4(self):
+        response = requests.get(self.url + 'depth=')
+        self.assertEqual(response.status_code, 400)
+
+    """
+    KO
+    value > 10
+    20
+    """
+    def test_depth_5(self):
+        response = requests.get(self.url + 'depth=20')
+        self.assertEqual(response.status_code, 400)
+
+    """
+    KO
+    negative value
+    -1
+    """
+    def test_depth_6(self):
+        response = requests.get(self.url + 'depth=-1')
+        self.assertEqual(response.status_code, 400)
+
+    """
+    KO?
+    operation in the value field
+    0.5*4
+    """
+    def test_depth_7(self):
+        response = requests.get(self.url + 'depth=0.5*4')
+        self.assertEqual(response.status_code, 400)
+
+    """
+    KO
+    substraction in the value field
+    5-3
+    """
+    def test_depth_8(self):
+        response = requests.get(self.url + 'depth=5-3')
+        self.assertEqual(response.status_code, 400)
+
+    """
+    KO
+    division in the value field
+    10/2
+    """
+    def test_depth_9(self):
+        response = requests.get(self.url + 'depth=10/2')
+        self.assertEqual(response.status_code, 400)
+
+    """
+    KO
+    modulo in the value field
+    10%2
+    """
+    def test_depth_10(self):
+        response = requests.get(self.url + 'depth=10%2')
+        self.assertEqual(response.status_code, 400)
+
+class TestActiveSearch(unittest.TestCase):
+    def __init__(self, methodName: str = "runTest") -> None:
+        super().__init__(methodName=methodName)
+        self.url = 'http://127.0.0.1:5000/api/?'
+        self.target = ""
+
+    """
+    OK
+    correct input value
+    0
+    """
+    def test_active_search_1(self):
+        response = requests.get(self.url + 'active_search=0')
+        self.assertEqual(response.status_code, 200)
+
+    """
+    OK
+    correct input value
+    1
+    """
+    def test_active_search_2(self):
+        response = requests.get(self.url + 'active_search=1')
+        self.assertEqual(response.status_code, 200)
+
+    """
+    KO
+    incorrect input value too high
+    2
+    """
+    def test_active_search_3(self):
+        response = requests.get(self.url + 'active_search=2')
+        self.assertEqual(response.status_code, 400)
+
+    """
+    KO
+    incorrect input: negative value
+    -1
+    """
+    def test_active_search_4(self):
+        response = requests.get(self.url + 'active_search=-1')
+        self.assertEqual(response.status_code, 400)
+
+    """
+    KO
+    incorrect input: must be int not str
+    test
+    """
+    def test_active_search_5(self):
+        response = requests.get(self.url + 'active_search=test')
+        self.assertEqual(response.status_code, 400)
+
+        """
+    KO?
+    operation in the value field
+    0.5*2
+    """
+    def test_active_search_6(self):
+        response = requests.get(self.url + 'active_search=0.5*2')
+        self.assertEqual(response.status_code, 400)
+
+    """
+    KO
+    substraction in the value field
+    5-3
+    """
+    def test_active_search_7(self):
+        response = requests.get(self.url + 'active_search=2-1')
+        self.assertEqual(response.status_code, 400)
+
+    """
+    KO
+    division in the value field
+    2/4
+    """
+    def test_active_search_8(self):
+        response = requests.get(self.url + 'active_search=2/4')
+        self.assertEqual(response.status_code, 400)
+
  
 
 def validateJSON(jsonData):
@@ -396,8 +571,10 @@ if __name__ == '__main__':
     suite.addTests(loader.loadTestsFromTestCase(TestTarget))
     suite.addTests(loader.loadTestsFromTestCase(TestAPIKey))
     suite.addTests(loader.loadTestsFromTestCase(TestCSEId))
+    suite.addTests(loader.loadTestsFromTestCase(TestDepth))
+    suite.addTests(loader.loadTestsFromTestCase(TestActiveSearch))
 
-    runner = unittest.TextTestRunner(verbosity=4)
+    runner = unittest.TextTestRunner(verbosity=6)
     runner.run(suite)
 
     APIHandler.tearDownClass()
