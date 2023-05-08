@@ -4,8 +4,9 @@ from opp import rest_api
 import multiprocessing
 import time
 import json
+import random, string
 
-class APIStart():
+class APIHandler():
 
     #Launch the API in background and wait a bit
     @classmethod
@@ -236,15 +237,146 @@ class TestTarget(unittest.TestCase):
     """
     OK
     valid target input
-    target: 'test input'
+    test_input
     """
     def test_target_1(self):
         self.target = 'test_input'
         response = requests.get(self.url + 'target=' + self.target)
         self.assertEqual(response.status_code, 200)
-        
+        self.assertEqual(response.headers['content-type'], 'application/json')
+        self.assertIs(validateJSON(response.text), True)
+
+    """
+    KO
+    target input too long
+    a*1002
+    """
+    def test_target_2(self):
+        self.target = 'a'*1002
+        response = requests.get(self.url + 'target=' + self.target)
+        self.assertEqual(response.status_code, 400)
+
+    """
+    KO
+    target input must be string
+    'test'
+    """
+    def test_target_3(self):
+        response = requests.get(self.url + 'target= "test"')
+        self.assertEqual(response.status_code, 400)
+
+    """
+    KO
+    target input should avoid injection code
+    ;rm -rf /
+    """
+    def test_target_4(self):
+        response = requests.get(self.url + 'target= ;rm -rf /')
+        self.assertEqual(response.status_code, 400)
+    
+    """
+    OK
+    test input
+    """
+    def test_target_5(self):
+        response = requests.get(self.url + 'target= test input')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers['content-type'], 'application/json')
+        self.assertIs(validateJSON(response.text), True)
+
+    """
+    KO
+    target field should not be empty
+    """
+    def test_target_6(self):
+        response = requests.get(self.url + 'target=')
+        self.assertEqual(response.status_code, 400)
+
+class TestAPIKey(unittest.TestCase):
+    def __init__(self, methodName: str = "runTest") -> None:
+        super().__init__(methodName=methodName)
+        self.url = 'http://127.0.0.1:5000/api/?'
+        self.target = ""
+
+    """
+    OK
+    valid api_key input
+    random api_key correct length
+    """
+    def test_api_key_1(self):
+        response = requests.get(self.url + 'api_key=' + ''.join(random.choice(string.ascii_lowercase) for i in range(39)))
+        self.assertEqual(response.status_code, 500)
+
+    """
+    KO
+    invalid
+    random api_key too long
+    """
+    def test_api_key_2(self):
+        response = requests.get(self.url + 'api_key=' + ''.join(random.choice(string.ascii_lowercase) for i in range(40)))
+        self.assertEqual(response.status_code, 400)
 
 
+    """
+    KO
+    invalid api_key too short
+    random api_key 38 of length
+    """
+    def test_api_key_3(self):
+        response = requests.get(self.url + 'api_key=' + ''.join(random.choice(string.ascii_lowercase) for i in range(38)))
+        self.assertEqual(response.status_code, 400)
+
+    """
+    KO
+    code injection in the api_key
+    
+    """
+    def test_api_key_4(self):
+        response = requests.get(self.url + 'api_key=' + "<?php print('Please specify the name of the file to delete');print('<p>');$file=$_GET['filename'];system('rm $file');?>")
+        self.assertEqual(response.status_code, 400)
+
+class TestCSEId(unittest.TestCase):
+    def __init__(self, methodName: str = "runTest") -> None:
+        super().__init__(methodName=methodName)
+        self.url = 'http://127.0.0.1:5000/api/?'
+        self.target = ""
+
+    """
+    OK
+    valid cse_id input
+    random cse_id correct length
+    """
+    def test_cse_id_1(self):
+        response = requests.get(self.url + 'cse_id=' + ''.join(random.choice(string.ascii_lowercase) for i in range(17)))
+        self.assertEqual(response.status_code, 500)
+
+    """
+    KO
+    invalid
+    random cse_id too long
+    """
+    def test_cse_id_2(self):
+        response = requests.get(self.url + 'cse_id=' + ''.join(random.choice(string.ascii_lowercase) for i in range(18)))
+        self.assertEqual(response.status_code, 400)
+
+    """
+    KO
+    invalid cse_id too short
+    random cse_id 38 of length
+    """
+    def test_cse_id_3(self):
+        response = requests.get(self.url + 'cse_id=' + ''.join(random.choice(string.ascii_lowercase) for i in range(16)))
+        self.assertEqual(response.status_code, 400)
+
+    """
+    KO
+    code injection in the cse_id
+    
+    """
+    def test_cse_id_4(self):
+        response = requests.get(self.url + 'cse_id=' + "<?php print('Please specify the name of the file to delete');print('<p>');$file=$_GET['filename'];system('rm $file');?>")
+        self.assertEqual(response.status_code, 400)
+ 
 
 def validateJSON(jsonData):
     try:
@@ -255,17 +387,19 @@ def validateJSON(jsonData):
     
 
 if __name__ == '__main__':
-    APIStart.setUpClass()
+    APIHandler.setUpClass()
 
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
 
     suite.addTests(loader.loadTestsFromTestCase(TestInitialFilters))
     suite.addTests(loader.loadTestsFromTestCase(TestTarget))
+    suite.addTests(loader.loadTestsFromTestCase(TestAPIKey))
+    suite.addTests(loader.loadTestsFromTestCase(TestCSEId))
 
-    runner = unittest.TextTestRunner(verbosity=2)
+    runner = unittest.TextTestRunner(verbosity=4)
     runner.run(suite)
 
-    APIStart.tearDownClass()
+    APIHandler.tearDownClass()
 
         
