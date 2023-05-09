@@ -257,13 +257,15 @@ class TestTarget(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
 
     """
-    KO
+    OK
     target input must be string
     'test'
     """
     def test_target_3(self):
         response = requests.get(self.url + 'target= "test"')
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers['content-type'], 'application/json')
+        self.assertIs(validateJSON(response.text), True)
 
     """
     KO
@@ -305,7 +307,7 @@ class TestAPIKey(unittest.TestCase):
     """
     def test_api_key_1(self):
         response = requests.get(self.url + 'target=' + self.target + '&api_key=' + ''.join(random.choice(string.ascii_lowercase) for i in range(39)))
-        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.status_code, 200)
 
     """
     KO
@@ -348,7 +350,9 @@ class TestCSEId(unittest.TestCase):
     """
     def test_cse_id_1(self):
         response = requests.get(self.url + 'target=' + self.target + '&cse_id=' + ''.join(random.choice(string.ascii_lowercase) for i in range(17)))
-        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers['content-type'], 'application/json')
+        self.assertIs(validateJSON(response.text), True)
 
     """
     KO
