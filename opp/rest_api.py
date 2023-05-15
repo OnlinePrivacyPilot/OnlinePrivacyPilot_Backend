@@ -65,5 +65,5 @@ def run():
         search.SearchOptions(api_key=api_key, cse_id=cse_id, active_search=active_search)
         research_instance = fingerprint_handler.FingerprintHandler(target=target, search_depth=depth, initial_filters = initial_filters)
         fingerprint = research_instance.get_fingerprint()
-        return research_instance.get_json_tree(fingerprint)
+        return research_instance.get_json_nodes_edges(fingerprint)
     app.run()

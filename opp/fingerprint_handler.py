@@ -78,3 +78,35 @@ class FingerprintHandler:
                                 "method": fp.method,
                                 "child": []
                             }
+
+    def get_json_nodes_edges(self, fp: footprint.Footprint):
+        result = {
+            "nodes": [],
+            "edges": []
+        }
+        node_key = -1
+        edge_key = -1
+        def traverse(fp):
+            nonlocal node_key,edge_key
+            node_key += 1
+            edge_key += 1
+            current_key = node_key
+            fp_data = {
+                "key": current_key,
+                "attributes": {
+                    "label": fp.target.replace('\n', ' ')
+                }
+            }
+            result["nodes"].append(fp_data)
+            if fp.children_footprints:
+                for child_fp in fp.children_footprints:
+                    edge_data = {
+                        "key": edge_key,
+                        "source": current_key,
+                        "target": traverse(child_fp),
+                        "attributes": {}
+                    }
+                    result["edges"].append(edge_data)
+            return current_key
+        traverse(fp)
+        return result
