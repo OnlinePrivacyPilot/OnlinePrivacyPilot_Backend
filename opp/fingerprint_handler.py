@@ -94,7 +94,10 @@ class FingerprintHandler:
             fp_data = {
                 "key": current_key,
                 "attributes": {
-                    "label": fp.target.replace('\n', ' ')
+                    "label": fp.target.replace('\n', ' '),
+                    "target": fp.target.replace('\n', ' '),
+                    "target_type": fp.target_type,
+                    "method": fp.method
                 }
             }
             result["nodes"].append(fp_data)
