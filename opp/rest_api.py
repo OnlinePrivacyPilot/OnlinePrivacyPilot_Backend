@@ -66,4 +66,9 @@ def run():
         research_instance = fingerprint_handler.FingerprintHandler(target=target, search_depth=depth, initial_filters = initial_filters)
         fingerprint = research_instance.get_fingerprint()
         return research_instance.get_json_nodes_edges(fingerprint)
+
+    @app.route('/api/status', methods=['GET'])
+    def opp_api_status():
+        return "OK", 200
+
     app.run()
