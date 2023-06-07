@@ -2,6 +2,8 @@
 *.db
 .vscode
 *build
+dist
+*.spec
 *credentials.py
 opp.egg-info
 *.dot
