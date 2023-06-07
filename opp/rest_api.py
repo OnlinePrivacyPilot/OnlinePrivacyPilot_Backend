@@ -72,3 +72,6 @@ def run():
         return "OK", 200
 
     app.run()
+
+if __name__ == '__main__':
+    run()

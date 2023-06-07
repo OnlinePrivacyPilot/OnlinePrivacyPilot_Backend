@@ -97,3 +97,6 @@ def run():
         db.store_graph(fingerprint)
     if store == "dot":
         db.gen_graphviz()
+
+if __name__ == '__main__':
+    run()
