@@ -51,6 +51,7 @@ class FingerprintHandler:
             if fp.children_footprints:
                 if fp.source_footprint:
                     return [{
+                                "key": child_fp.key,
                                 "value": child_fp.target.replace('\n', ' '),
                                 "type": child_fp.target_type,
                                 "method": child_fp.method,
@@ -58,10 +59,12 @@ class FingerprintHandler:
                             } for child_fp in fp.children_footprints ]
                 else:
                     return {
+                                "key": fp.key,
                                 "value": fp.target.replace('\n', ' '),
                                 "type": fp.target_type,
                                 "method": fp.method,
                                 "child": [{
+                                            "key": child_fp.key,
                                             "value": child_fp.target.replace('\n', ' '),
                                             "type": child_fp.target_type,
                                             "method": child_fp.method,
@@ -73,6 +76,7 @@ class FingerprintHandler:
                     return {}
                 else: 
                     return {
+                                "key": fp.key,
                                 "value": fp.target.replace('\n', ' '),
                                 "type": fp.target_type,
                                 "method": fp.method,
@@ -84,13 +88,11 @@ class FingerprintHandler:
             "nodes": [],
             "edges": []
         }
-        node_key = -1
         edge_key = -1
         def traverse(fp):
-            nonlocal node_key,edge_key
-            node_key += 1
+            nonlocal edge_key
             edge_key += 1
-            current_key = node_key
+            current_key = fp.key
             fp_data = {
                 "key": current_key,
                 "attributes": {

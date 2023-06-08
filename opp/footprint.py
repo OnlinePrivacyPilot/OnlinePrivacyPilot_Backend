@@ -1,9 +1,11 @@
+import hashlib
 from opp import search
 from opp import scrap
 from opp import ftype
 from abc import ABC, abstractmethod
 from urllib.parse import urlparse
 import re
+
 
 class Footprint(ABC):
     """ This class is an abstract class that will define all the common attributes and method we want for our different types of footprint.
@@ -57,8 +59,10 @@ class SearchableFootprint(Footprint):
         super().__init__(fingerprint, target, target_type, method)
         self.source_footprint = source_footprint
         if self.source_footprint:
+            self.key = hash_string(str(self.source_footprint.key) + self.target)
             self.search_depth = self.source_footprint.search_depth - 1 
         else:
+            self.key = hash_string(self.target)
             self.search_depth = search_depth
         self.initial_filters = initial_filters
         self.process()
@@ -133,6 +137,7 @@ class ScrapableFootprint(Footprint):
 
         super().__init__(fingerprint, target, target_type, method)
         self.source_footprint = source_footprint
+        self.key = hash_string(str(self.source_footprint.key) + target)
         self.search_depth = self.source_footprint.search_depth - 1 
         self.process()
         
@@ -161,6 +166,7 @@ class TerminalFootprint(Footprint):
     def __init__(self, fingerprint, target: str, target_type: str = None, method: str = None, source_footprint: Footprint = None):
         super().__init__(fingerprint, target, target_type, method)
         self.source_footprint = source_footprint
+        self.key = hash_string(str(self.source_footprint.key) + target)
         self.process()
 
     def process(self) -> None:
@@ -290,3 +296,9 @@ class RecursionHandler:
             return True
         else:
             return False
+        
+def hash_string(string: str):
+    encoded_string = string.encode('utf-8')
+    hash_object = hashlib.sha256(encoded_string)
+    hex_dig = hash_object.hexdigest()
+    return hex_dig
