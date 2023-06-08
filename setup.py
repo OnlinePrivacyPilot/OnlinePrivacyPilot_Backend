@@ -42,7 +42,15 @@ setup(
         "simple_graph_sqlite",
         "sphinx",
         "selenium",
-        "webdriver-manager"
+        "webdriver-manager",
+        "httpx",
+        "holehe",
+        "ignorant",
+        "flask",
+        "flask_cors",
+        "marshmallow",
+        "asciitree",
+        "pyinstaller"
     ],
     extras_require={
         "dev": [
