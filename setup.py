@@ -42,7 +42,7 @@ setup(
         "simple_graph_sqlite",
         "sphinx",
         "selenium",
-        "webdriver-manager",
+        "chromedriver_binary",
         "httpx",
         "holehe",
         "ignorant",

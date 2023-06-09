@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
+import chromedriver_binary
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 
@@ -320,9 +320,8 @@ class LinkedinScrapper(AbstractScrapper):
         options = Options()
         options.add_argument("--headless")
 
-        service = Service(executable_path=ChromeDriverManager().install())
+        driver = webdriver.Chrome(options=options)
 
-        driver = webdriver.Chrome(service=service, options=options)
         driver.delete_all_cookies()
         #To be sure we have access to the linkedIn link, we are adding a referer header
         driver.get(url+"?original_referer=https%3A%2F%2Fwww.google.com%2F")
