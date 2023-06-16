@@ -1,4 +1,7 @@
 from setuptools import setup, find_packages
+from setuptools.command.install import install
+import importlib
+
 
 setup(
     name="opp",
@@ -14,6 +17,7 @@ setup(
         "httpx",
         "holehe",
         "ignorant",
+        "jinja2",
         "flask",
         "flask_cors",
         "marshmallow",
@@ -25,5 +29,5 @@ setup(
             'oppcli=opp.cli_client:run',
             'oppapi=opp.rest_api:run'
         ]
-    }
+    },
 )
