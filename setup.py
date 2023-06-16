@@ -1,6 +1,5 @@
 from setuptools import setup, find_packages
 from setuptools.command.build_py import build_py
-from setuptools.command.build_ext import build_ext
 from distutils.cmd import Command
 import subprocess
 
@@ -27,7 +26,6 @@ class CustomBuild(build_py):
     Override the build_py command to also build the documentation.
     """
     def run(self):
-        self.run_command('build_ext')
         self.run_command('build_docs')
         build_py.run(self)
 
@@ -37,7 +35,6 @@ setup(
     packages=find_packages(),
     install_requires=[
         "beautifulsoup4",
-        "spacy",
         "google-api-python-client",
         "simple_graph_sqlite",
         "sphinx",
