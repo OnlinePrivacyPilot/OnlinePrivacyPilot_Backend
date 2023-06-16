@@ -20,11 +20,6 @@ setup(
         "asciitree",
         "pyinstaller"
     ],
-    extras_require={
-        "dev": [
-            "pytest",
-        ]
-    },
     entry_points={
         'console_scripts': [
             'oppcli=opp.cli_client:run',
