@@ -22,48 +22,9 @@ EXCLUDE
 
 import httpx
 import trio
-import importlib
-import pkgutil
+from opp import osint_imports
 from holehe.localuseragent import ua
 from ignorant.localuseragent import ua
-
-def import_submodules(package: str, recursive=True) -> list:
-    """ This function imports all submodules from given package and returns the list these submodules. 
-
-    Args:
-        package (str): Package to import from.
-        recursive (bool, optional): Defines if necessary to import recursively. Defaults to True.
-
-    Returns:
-        list: Imported submodules.
-    """
-    if isinstance(package, str):
-        package = importlib.import_module(package)
-    results = {}
-    for loader, name, is_pkg in pkgutil.walk_packages(package.__path__):
-        full_name = package.__name__ + '.' + name
-        results[full_name] = importlib.import_module(full_name)
-        if recursive and is_pkg:
-            results.update(import_submodules(full_name))
-    return results
-
-
-def get_functions(modules) -> list:
-    """ This function transforms the modules objects to functions.
-
-    Args:
-        modules (list): Modules to transform to functions.
-    Returns:
-        list: Obtained functions.
-    """
-    websites = []
-
-    for module in modules:
-        if len(module.split(".")) > 3 :
-            modu = modules[module]
-            site = module.split(".")[-1]
-            websites.append(modu.__dict__[site])
-    return websites
 
 async def launch_holehe(module, email, client, out):
     """
@@ -139,8 +100,7 @@ def email(target_email: str) -> list:
     Returns:
         list: Obtained footprints
     """
-    websites = get_functions(import_submodules("holehe.modules.social_media"))
-    return trio.run(megadose_toolkit, launch_holehe, websites, target_email)
+    return trio.run(megadose_toolkit, launch_holehe, osint_imports.WEBSITES_holehe, target_email)
 
 def phone(target_phone: str) -> list:
     """ This function launches in parallel all Ignorant modules with given phone number using `trio` library and `megadose_toolkit()`.
@@ -151,5 +111,4 @@ def phone(target_phone: str) -> list:
     Returns:
         list: Obtained footprints
     """
-    websites = get_functions(import_submodules("ignorant.modules"))
-    return trio.run(megadose_toolkit, launch_ignorant, websites, target_phone)
+    return trio.run(megadose_toolkit, launch_ignorant, osint_imports.WEBSITES_ignorant, target_phone)
