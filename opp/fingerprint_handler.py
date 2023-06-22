@@ -1,3 +1,4 @@
+from urllib.parse import urlparse
 from opp import footprint
 from typing import Optional
 from collections import OrderedDict
@@ -96,7 +97,7 @@ class FingerprintHandler:
             fp_data = {
                 "key": current_key,
                 "attributes": {
-                    "label": fp.target.replace('\n', ' '),
+                    "label":  self.prettify_link(fp.target.replace('\n', ' ')) if fp.target_type == 'url' else fp.target.replace('\n', ' '),
                     "target": fp.target.replace('\n', ' '),
                     "target_type": fp.target_type,
                     "method": fp.method
@@ -115,3 +116,15 @@ class FingerprintHandler:
             return current_key
         traverse(fp)
         return result
+
+    def prettify_link(self, url):
+        parsed_url = urlparse(url)
+        domain = parsed_url.netloc.replace("www.", "")
+        path = parsed_url.path.strip('/')
+
+        if domain:
+            display_text = f"{domain}: {path}" if path else domain
+        else:
+            display_text = url 
+
+        return display_text
