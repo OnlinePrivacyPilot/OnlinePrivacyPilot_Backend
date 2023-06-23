@@ -9,3 +9,4 @@ opp.egg-info
 *.dot
 *.png
 config.json
+osint_imports.py
