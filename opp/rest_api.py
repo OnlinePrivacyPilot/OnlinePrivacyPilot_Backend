@@ -25,53 +25,45 @@ class OPPSearchSchema(Schema):
 opp_search_schema = OPPSearchSchema()
 filter_list_schema = FilterListSchema()
 
-def run():
-    """ This function launches Flask app to serve the REST API of OPP 
+app = Flask(__name__)
+cors = CORS(app)
 
-    Returns:
-        HTTP response
-    """
-    app = Flask(__name__)
-    cors = CORS(app)
+@app.route('/api/', methods=['POST', 'GET'])
+def opp_api():
+    # Validation of request arguments
+    args = request.args.to_dict()
+    errors = opp_search_schema.validate(args)
+    if errors:
+        return {'errors': errors}, 400
 
-    @app.route('/api/', methods=['POST', 'GET'])
-    def opp_api():
-        # Validation of request arguments
-        args = request.args.to_dict()
-        errors = opp_search_schema.validate(args)
-        if errors:
-            return {'errors': errors}, 400
+    # Getting arguments if no error
+    target = request.args.get('target', None)
+    api_key = request.args.get('api_key', None)
+    cse_id = request.args.get('cse_id', None)
+    depth = int(request.args.get('depth', 3))
+    active_search = bool(request.args.get('active_search', 0))
 
-        # Getting arguments if no error
-        target = request.args.get('target', None)
-        api_key = request.args.get('api_key', None)
-        cse_id = request.args.get('cse_id', None)
-        depth = int(request.args.get('depth', 3))
-        active_search = bool(request.args.get('active_search', 0))
+    # Evaluation and validation of initial filters
+    try:
+        initial_filters = list(eval(request.args.get('initial_filters', '[]')))
+    except SyntaxError:
+        return {'errors': {"initial_filters":["SyntaxError"]}}, 400
+    except NameError:
+        return {'errors': {"initial_filters":["NameError"]}}, 400
 
-        # Evaluation and validation of initial filters
-        try:
-            initial_filters = list(eval(request.args.get('initial_filters', '[]')))
-        except SyntaxError:
-            return {'errors': {"initial_filters":["SyntaxError"]}}, 400
-        except NameError:
-            return {'errors': {"initial_filters":["NameError"]}}, 400
+    errors_filters = filter_list_schema.validate({"filters": initial_filters})
+    if errors_filters:
+        return {'errors': errors_filters}, 400
 
-        errors_filters = filter_list_schema.validate({"filters": initial_filters})
-        if errors_filters:
-            return {'errors': errors_filters}, 400
+    # Request is valid : process it 
+    search.SearchOptions(api_key=api_key, cse_id=cse_id, active_search=active_search)
+    research_instance = fingerprint_handler.FingerprintHandler(target=target, search_depth=depth, initial_filters = initial_filters)
+    fingerprint = research_instance.get_fingerprint()
+    return research_instance.get_json_nodes_edges(fingerprint)
 
-        # Request is valid : process it 
-        search.SearchOptions(api_key=api_key, cse_id=cse_id, active_search=active_search)
-        research_instance = fingerprint_handler.FingerprintHandler(target=target, search_depth=depth, initial_filters = initial_filters)
-        fingerprint = research_instance.get_fingerprint()
-        return research_instance.get_json_nodes_edges(fingerprint)
-
-    @app.route('/api/status', methods=['GET'])
-    def opp_api_status():
-        return "OK", 200
-
-    app.run()
+@app.route('/api/status', methods=['GET'])
+def opp_api_status():
+    return "OK", 200
 
 if __name__ == '__main__':
-    run()
+    app.run()

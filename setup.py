@@ -27,7 +27,7 @@ setup(
     entry_points={
         'console_scripts': [
             'oppcli=opp.cli_client:run',
-            'oppapi=opp.rest_api:run'
+            'oppapi=opp.rest_api:app.run'
         ]
     },
 )
