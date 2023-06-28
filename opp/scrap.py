@@ -336,7 +336,9 @@ class LinkedinScrapper(AbstractScrapper):
                 }
             )
         except NoSuchElementException:
-            pass
+            # If no name, the authwall was displayed -> quit
+            driver.quit()
+            return []
 
         try:
             result.append(
