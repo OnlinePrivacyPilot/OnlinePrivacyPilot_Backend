@@ -25,11 +25,12 @@ pip install -e .
 
 ### Search API Key
 
-As the software uses Google Custom Search API, it's necessary to obtain API key, and put it in the `src/credentials.py` like this :
-```py
-API_KEY = "YOUR_API_KEY"
-SEARCH_ENGINE_ID = "YOUR_SEARCH_ENGINE_ID"
+As the software uses Google Custom Search API, it's necessary to obtain API key and a CSE id.
+To do so you should pass it as an option of the entry command, this could be for instance:
 ```
+oppcli -d 2 -o -k "key_from_user" -c "cse_id_user" "target_user"
+```
+The `-k` option is used to specify the API where the `-c` is linked to the CSE id.
 
 ### Help
 ```
@@ -39,6 +40,13 @@ oppcli -h
 Usage: oppcli [OPTIONS] <target>
 
 General:
-	-h,	--help			print this help.
-	-d,	--depth			specify the maximun depth of the search.
+        -h,     --help                  print this help.
+        -d,     --depth                 specify the maximum depth of the search.
+        -n,     --negative-filter       specify optional negative filter.
+        -p,     --positive-filter       specify optional positive filter.
+        -o,     --active_search         activate OSINT techniques in the research process
+        -q,     --quiet                 disable the display of the ascii tree in output
+        -s,     --store                 store obtained fingerprint as : none (default), db (SQLITE file only), dot (SQLITE file + DOT file + PNG)
+        -k,     --api_key               specify Google search API Key, if empty, the program will get results using a scrapping library
+        -c,     --cse_id                specify Custom Search Engine ID, if empty, the program will get results using a scrapping library
 ```

@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
 from urllib.parse import urlparse
-from typing import List
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
+import chromedriver_binary
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 
@@ -14,8 +13,10 @@ from selenium.common.exceptions import NoSuchElementException
 USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/110.0"
 
 class Scrap():
-    """
-    Init function
+    """ This class instanciates a specific abstract scrapper according to the given URL.
+
+    Attributes:
+        scrapper (AbstractScrapper): Scrapper that will be used to obtain footprints from URL.
     """
     def __init__(self, url: str = None):
         if isurl_twitter(url):
@@ -26,20 +27,25 @@ class Scrap():
             self.scrapper = GithubScrapper(url)
         elif isurl_linkedin(url):
             self.scrapper = LinkedinScrapper(url)
+        elif isurl_instagram(url):
+            self.scrapper = InstagramScrapper(url)
         else:
             self.scrapper = GenericScrapper(url)
             
 
 class AbstractScrapper(ABC):
+    """ This class is responsible of defining the common behavior for the scrappers.
+
+    Attributes:
+        url (str): URL to scrap
+        result (list): Found footprints.
     """
-    Class responsible of defining the common behavior for the scrappers.
-    """
-    def __init__(self, url):
+    def __init__(self, url: str):
         self.url = url
         self.result = self.scrap_data(url)
 
     @abstractmethod
-    def scrap_data(self, url) -> List:
+    def scrap_data(self, url) -> list:
         return []
 
 class TwitterScrapper(AbstractScrapper):
@@ -48,11 +54,11 @@ class TwitterScrapper(AbstractScrapper):
     """
     METHOD_NAME = "twitter_scrapper"
 
-    def __init__(self, url):
+    def __init__(self, url: str):
         super().__init__(url)
         self.result = self.scrap_data(url)
 
-    def scrap_data(self, url) -> List:
+    def scrap_data(self, url) -> list:
         """
         Retrieve data from twitter
         """
@@ -141,14 +147,14 @@ class TiktokScrapper(AbstractScrapper):
 
     METHOD_NAME = "tiktok_scrapper"
 
-    def __init__(self, url):
+    def __init__(self, url: str):
         super().__init__(url)
         if urlparse(url).path.startswith("/@"): # if it is a tiktok profile page
             self.result = self.scrap_data(url)
         else:
             self.result = []
 
-    def scrap_data(self, url) -> List:
+    def scrap_data(self, url) -> list:
         result = []
 
         # Send a GET request to the URL
@@ -214,11 +220,11 @@ class GithubScrapper(AbstractScrapper):
 
     METHOD_NAME = "github_scrapper"
 
-    def __init__(self, url):
+    def __init__(self, url: str):
         super().__init__(url)
         self.result = self.scrap_data(url)
 
-    def scrap_data(self, url) -> List:
+    def scrap_data(self, url) -> list:
         result = []
 
         # Send a GET request to the URL
@@ -304,21 +310,21 @@ class LinkedinScrapper(AbstractScrapper):
 
     METHOD_NAME = "linkedin_scrapper"
 
-    def __init__(self, url):
+    def __init__(self, url: str):
         super().__init__(url)
         self.result = self.scrap_data(url)
 
-    def scrap_data(self, url) -> List:
+    def scrap_data(self, url) -> list:
         result = []
 
         options = Options()
         options.add_argument("--headless")
 
-        service = Service(executable_path=ChromeDriverManager().install())
+        driver = webdriver.Chrome(options=options)
 
-        driver = webdriver.Chrome(service=service, options=options)
         driver.delete_all_cookies()
-        driver.get(url)
+        #To be sure we have access to the linkedIn link, we are adding a referer header
+        driver.get(url+"?original_referer=https%3A%2F%2Fwww.google.com%2F")
         driver.implicitly_wait(10)
 
         try:
@@ -330,7 +336,9 @@ class LinkedinScrapper(AbstractScrapper):
                 }
             )
         except NoSuchElementException:
-            pass
+            # If no name, the authwall was displayed -> quit
+            driver.quit()
+            return []
 
         try:
             result.append(
@@ -365,32 +373,71 @@ class LinkedinScrapper(AbstractScrapper):
         except NoSuchElementException:
             pass
 
-        try:
+        driver.quit()
+        return result
+    
+class InstagramScrapper(AbstractScrapper):
+
+    METHOD_NAME = "instagram_scrapper"
+
+    def __init__(self, url: str):
+        super().__init__(url)
+        self.result = self.scrap_data(url)
+
+    def scrap_data(self, url) -> list:
+        result = []
+
+        # Send a GET request to the URL
+        headers = {"User-Agent": USER_AGENT}
+        response = requests.get(url.replace("instagram.com","picnob.com/profile"), headers=headers)
+
+        # Parse the HTML content using BeautifulSoup
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        # Find the user's name
+        if soup.find("h1", {"class": "fullname"}):
             result.append(
                 {
-                    "type" : "image",
-                    "value" : driver.find_element(By.CLASS_NAME, "artdeco-entity-image").get_attribute("src"),
+                    "type" : "name",
+                    "value" : soup.find("h1", {"class": "fullname"}).text.strip(),
                     "method" : self.METHOD_NAME
                 }
             )
-        except NoSuchElementException:
-            pass
 
-        driver.quit()
+        # Find the user's username
+        if soup.find("div", {"class": "username"}):
+            result.append(
+                {
+                    "type" : "username",
+                    "value" : soup.find("div", {"class": "username"}).text.strip(),
+                    "method" : self.METHOD_NAME
+                }
+            )
+
+        # Find the user's bio
+        if soup.find("div", {"class": "sum"}):
+            result.append(
+                {
+                    "type" : "description",
+                    "value" : soup.find("div", {"class": "sum"}).text.strip(),
+                    "method" : self.METHOD_NAME
+                }
+            )
+            
         return result
 
 class GenericScrapper(AbstractScrapper):
 
     METHOD_NAME = "generic_scrapper"
 
-    def __init__(self, url):
+    def __init__(self, url: str):
         super().__init__(url)
         self.result = self.scrap_data(url)
 
-    def scrap_data(self, url) -> List:
+    def scrap_data(self, url) -> list:
         return []
 
-def isurl_social(string: str, matching_urls: List[str]) -> bool:
+def isurl_social(string: str, matching_urls: list[str]) -> bool:
     try:
         result = urlparse(string)
         if result.netloc in matching_urls:
@@ -403,6 +450,9 @@ def isurl_social(string: str, matching_urls: List[str]) -> bool:
 
 def isurl_twitter(string):
     return isurl_social(string, ["twitter.com", "mobile.twitter.com"])
+
+def isurl_instagram(string):
+    return isurl_social(string, ["instagram.com", "www.instagram.com"])
 
 def isurl_tiktok(string):
     return isurl_social(string, ["tiktok.com", "www.tiktok.com"])

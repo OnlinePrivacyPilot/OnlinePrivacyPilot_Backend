@@ -2,7 +2,11 @@
 *.db
 .vscode
 *build
+dist
+*.spec
 *credentials.py
-src.egg-info
+opp.egg-info
 *.dot
 *.png
+config.json
+osint_imports.py

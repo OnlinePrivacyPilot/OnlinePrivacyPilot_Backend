@@ -1,3 +1,4 @@
+from opp import footprint
 from simple_graph_sqlite import database as db
 from simple_graph_sqlite.visualizers import graphviz_visualize
 from typing import Optional
@@ -6,7 +7,7 @@ import unicodedata
 import string
 
 class Storage:
-    def __new__(cls, target: Optional[str] = None):
+    def __new__(cls, target: str = None):
         if not hasattr(cls, 'instance'):
             cls.instance = super(Storage, cls).__new__(cls)
             cls.footprint_id = 0
@@ -16,7 +17,7 @@ class Storage:
 
     def get_filename(target: str) -> str:
         """
-        Uses target value to generate a name for the DB file
+        This method uses target value to generate a name for the DB file
 
         Args:
             target (str): Input target
@@ -26,10 +27,25 @@ class Storage:
         """
         filename = unicodedata.normalize('NFKD', target).encode('ASCII', 'ignore').decode()
         return ''.join(char for char in filename if char in "-_ ().%s%s" % (string.digits, string.ascii_letters))
-        
+    
+    def store_graph(self, fp: footprint.Footprint = None, source_footprint_id: int = None) -> None:
+        """ This method stores recursively whole given fingerprint by calling `store_node()` and `store_edge`
+
+        Args:
+            fp (footprint, optional): _description_. Defaults to None.
+            source_footprint_id (int, optional): _description_. Defaults to None.
+        """
+        if isinstance(fp, footprint.Footprint):
+            footprint_id = self.store_node(fp.method, fp.target_type, fp.target)
+            if source_footprint_id:
+                self.store_edge(source_footprint_id, footprint_id)
+            if fp.children_footprints:
+                for child_footprint in fp.children_footprints:
+                    self.store_graph(child_footprint, footprint_id)
+
     def store_node(self, method: str, type: str, value: str) -> int:
         """
-        In that function we store a footprint in the graph.
+        This method stores a footprint in the graph.
 
         Args:
             method (str): Method used to retieve footprint
@@ -49,7 +65,7 @@ class Storage:
 
     def store_edge(self, parent_id: int, child_id: int) -> None:
         """
-        In that function we store an edge in the graph.
+        This method stores an edge in the graph.
 
         Args:
             parent_id (int): Parent node ID
@@ -59,7 +75,7 @@ class Storage:
     
     def delete_node(self, id: int) -> None:
         """
-        Delete a node according to its ID, all child nodes will be also deleted.
+        This method deletes a node according to its ID, all child nodes will be also deleted.
 
         Args:
             id (int): ID of the node to delete
