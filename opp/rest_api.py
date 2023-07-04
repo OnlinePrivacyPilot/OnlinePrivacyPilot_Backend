@@ -55,7 +55,7 @@ def opp_api():
     if errors_filters:
         return {'errors': errors_filters}, 400
 
-    # Request is valid : process it 
+    # Request is valid : process it
     search.SearchOptions(api_key=api_key, cse_id=cse_id, active_search=active_search)
     research_instance = fingerprint_handler.FingerprintHandler(target=target, search_depth=depth, initial_filters = initial_filters)
     fingerprint = research_instance.get_fingerprint()
