@@ -41,7 +41,7 @@ def opp_api():
     api_key = request.args.get('api_key', None)
     cse_id = request.args.get('cse_id', None)
     depth = int(request.args.get('depth', 3))
-    active_search = bool(request.args.get('active_search', 0))
+    active_search = True if int(request.args.get('active_search', 0)) else False
 
     # Evaluation and validation of initial filters
     try:
@@ -56,7 +56,10 @@ def opp_api():
         return {'errors': errors_filters}, 400
 
     # Request is valid : process it
-    search.SearchOptions(api_key=api_key, cse_id=cse_id, active_search=active_search)
+    search.SearchOptions()
+    search.SearchOptions().set_api_key(api_key=api_key)
+    search.SearchOptions().set_cse_id(cse_id=cse_id)
+    search.SearchOptions().set_active_search(active_search=active_search)
     research_instance = fingerprint_handler.FingerprintHandler(target=target, search_depth=depth, initial_filters = initial_filters)
     fingerprint = research_instance.get_fingerprint()
     return research_instance.get_json_nodes_edges(fingerprint)

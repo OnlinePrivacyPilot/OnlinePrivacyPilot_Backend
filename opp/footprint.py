@@ -65,6 +65,8 @@ class SearchableFootprint(Footprint):
             self.key = hash_string(self.target)
             self.search_depth = search_depth
         self.initial_filters = initial_filters
+        if self.initial_filters == []:
+            self.initial_filters = self.get_initial_filters()
         self.process()
 
 
@@ -73,11 +75,12 @@ class SearchableFootprint(Footprint):
         This method instanciate :class:`Search <src.search.Search>` class, the results obtained are used to create new footprints objects by using :class:`RecursionHandler`
 
         """
-        search_obj = search.Search(filters=self.get_filters(), initial_filters=self.get_initial_filters())
+        search_obj = search.Search(filters=self.get_filters(), initial_filters=self.initial_filters)
         for item in search_obj.result:
-            self.children_footprints.append(
-                RecursionHandler.get(fingerprint=self.belongs_to, target=item["value"], source_footprint=self, method=item["method"], target_type=item["type"])
-            )
+            if item["value"] not in [negative_filter["value"] for negative_filter in self.initial_filters if not negative_filter["positive"]]: # If not in initial negative filters
+                self.children_footprints.append(
+                    RecursionHandler.get(fingerprint=self.belongs_to, target=item["value"], source_footprint=self, method=item["method"], target_type=item["type"])
+                )
     
     def get_filters(self) -> list:
         """ This method generates a list of filters which will be used to create a search query. It relies on the current footprint whose value is added directly to the list.
@@ -138,7 +141,8 @@ class ScrapableFootprint(Footprint):
         super().__init__(fingerprint, target, target_type, method)
         self.source_footprint = source_footprint
         self.key = hash_string(str(self.source_footprint.key) + target)
-        self.search_depth = self.source_footprint.search_depth - 1 
+        self.search_depth = self.source_footprint.search_depth - 1
+        self.initial_filters = source_footprint.initial_filters
         self.process()
         
     def process(self) -> None:
@@ -148,9 +152,10 @@ class ScrapableFootprint(Footprint):
         """
         scrap_obj = scrap.Scrap(self.target).scrapper
         for item in scrap_obj.result:
-            self.children_footprints.append(
-                RecursionHandler.get(fingerprint=self.belongs_to, target=item["value"], source_footprint=self, method=item["method"], target_type=item["type"])
-            )
+            if item["value"] not in [negative_filter["value"] for negative_filter in self.initial_filters if not negative_filter["positive"]]: # If not in initial negative filters
+                self.children_footprints.append(
+                    RecursionHandler.get(fingerprint=self.belongs_to, target=item["value"], source_footprint=self, method=item["method"], target_type=item["type"])
+                )
 
 
 class TerminalFootprint(Footprint):
