@@ -50,13 +50,14 @@ class Search:
         All obtained footprints are added to `result` attribute of the current :class:`Search` object.
         """
         self.prepare_query()
-        if SearchOptions().api_key and SearchOptions().cse_id:
+        if SearchOptions().get_api_key() and SearchOptions().get_cse_id():
             self.mod_google()
         else:
             self.mod_google_no_api()
 
         # In addition, if OSINTABLE filter, call OSINT methods.
-        if len(self.filters) != 0 and SearchOptions.active_search == True:
+        if len(self.filters) != 0 and SearchOptions().get_active_search() == True:
+            print("osint")
             if self.filters[0]["type"] == "email":
                 self.result += osint.email(self.filters[0]["value"])
             elif self.filters[0]["type"] == "phone":
@@ -85,10 +86,11 @@ class Search:
 
         # Iterating on all the initial filters and appending them in the right list according to the value of their positive field
         for initf in self.initial_filters:
-            if initf["positive"]:
-                p_i.append(initf)
-            else:
-                n_i.append(initf)
+            if initf["type"] in ftype.SEARCHABLE_TYPES:
+                if initf["positive"]:
+                    p_i.append(initf)
+                else:
+                    n_i.append(initf)
 
         if len(self.filters) != 0:
             p_0 = [self.filters[-1]["value"]]
@@ -97,10 +99,10 @@ class Search:
         self.query = QUERY_TEMPLATE.render(p_0=p_0, pos_filters=p_i, neg_filters=n_i)
     
     def mod_google(self):
-        api_key = SearchOptions.api_key
-        search_engine_id = SearchOptions.cse_id
+        api_key = SearchOptions().get_api_key()
+        search_engine_id = SearchOptions().get_cse_id()
 
-        number_of_page = 3
+        number_of_page = 2
         start = 1
         result = {}
         #Result per page is apparently set to 10 by default
@@ -123,7 +125,6 @@ class Search:
         url = 'https://www.google.com/search?nfpr=1&q='+ self.query.replace(" ", "+")
         headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/110.0'}
         response = requests.get(url, headers=headers)
-
         soup = BeautifulSoup(response.text, 'html.parser')
         results = soup.find_all('div', class_='g')
         for result in results:
@@ -147,11 +148,41 @@ class SearchOptions:
         active_search (bool, optional): This option activates OSINT investigations. Defaults to False.
     """
     _instance = None
+    _api_key = None
+    _cse_id = '566c87e9879ac4d59' # Default CSE ID of OnlinePrivacyPilot Team
+    _active_search = False
 
-    def __new__(cls, api_key: str = None, cse_id: str =  None, active_search : bool = False):
+    def __new__(cls, api_key: str = None, cse_id: str = None, active_search : bool = False):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls.api_key = api_key
-            cls.active_search = active_search
-            cls.cse_id = cse_id
         return cls._instance
+
+    @classmethod
+    def set_api_key(cls, api_key: str = None):
+        if api_key == 39*"0": # If api_key == 39*"0" do not use Google API
+            cls._api_key = None
+        else:
+            cls._api_key = api_key
+
+    @classmethod
+    def set_cse_id(cls, cse_id: str = None):
+        if cse_id == None:
+            cls._cse_id = '566c87e9879ac4d59' # Default CSE ID of OnlinePrivacyPilot Team
+        else:
+            cls._cse_id = cse_id
+
+    @classmethod
+    def set_active_search(cls, active_search : bool = False):
+        cls._active_search = active_search
+
+    @classmethod
+    def get_api_key(cls):
+        return cls._api_key
+
+    @classmethod
+    def get_cse_id(cls):
+        return cls._cse_id
+
+    @classmethod
+    def get_active_search(cls):
+        return cls._active_search

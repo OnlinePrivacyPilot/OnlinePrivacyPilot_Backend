@@ -82,7 +82,10 @@ def run():
                 store = value
 
     # Set search options
-    search.SearchOptions(api_key=api_key, cse_id=cse_id, active_search=active_search)
+    search.SearchOptions()
+    search.SearchOptions().set_api_key(api_key=api_key)
+    search.SearchOptions().set_cse_id(cse_id=cse_id)
+    search.SearchOptions().set_active_search(active_search=active_search)
     # Generate Fingerprint
     research_instance = fingerprint_handler.FingerprintHandler(target=" ".join(args), search_depth=search_depth, initial_filters = initial_filters)
     fingerprint = research_instance.get_fingerprint()

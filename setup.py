@@ -5,7 +5,7 @@ import importlib
 
 setup(
     name="opp",
-    version="0.1",
+    version="0.2.0",
     packages=find_packages(),
     install_requires=[
         "beautifulsoup4",
